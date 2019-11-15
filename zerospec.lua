@@ -244,6 +244,8 @@ local function updateEventHandler()
     end
 end
 
+callbacks.Register("Draw", updateEventHandler);
+
 callbacks.Register("Draw", function()
 
 
