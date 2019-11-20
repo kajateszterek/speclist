@@ -4,12 +4,13 @@ local font_title = draw.CreateFont("Smallest Pixel-7", 16, 5);
 local font_spec = draw.CreateFont("Tahoma", 13, 1);
 local topbarSize = 25;
 local ittleszxd = gui.Reference("SETTINGS", "Miscellaneous")
-local line1 = gui.Slider(ittleszxd , "halig", "Line Fade Speed", 1, 0.1, 5 )
-local line2 = gui.Slider(ittleszxd , "halig", "Line Fade Speed", 1.1, 0.1, 5 )
+local line1 = gui.Slider(ittleszxd , "halig", "Line Fade Speed", 2.5, 0.1, 20 )
 local vonal_alt = gui.Combobox( ittleszxd, "miyu_ocsi_dd", "Line Options", "None", "Top", "Bottom", "Both" )
 local thiccness = gui.Slider( ittleszxd, "haligvastag", "Vasstaggságg =D", 2, 0.1, 40)
 local specszin = gui.ColorEntry( "dxhooker", "Spectators' name color ", 150, 200, 50, 255 )
-
+local fejszin = gui.ColorEntry( "dxhooker", "Spectator list Header text color ", 150, 150, 150, 255 )
+local fejszincombo = gui.Combobox( ittleszxd, "miyu_ocsi_ddd", "Header text color", "Static", "RGB" )
+local fejszin_alpha = gui.Slider( ittleszxd, "dxh", "RGB header alpha", "100", "0", "255" )
 
 
 local render = {};
@@ -135,7 +136,6 @@ local function drawWindow(spectators)
     local h2 = h - 60 + (spectators * 11);
     local h = h + (spectators * 11);
     local rgb = getFadeRGB(line1:GetValue());
-    local bgr = getFadeRGB(line2:GetValue());
     local scrinx, scriny = draw.GetScreenSize()
 
     -- Draw small outline
@@ -149,22 +149,26 @@ local function drawWindow(spectators)
     -- Draw the main bg
     drawRectFill(0, 0, 0, 255, x, y, w - 100, h - 20);
 
-
+    
     -- Draw the text
     draw.Color(255, 255, 255);
     draw.SetFont(font_title);
     local spectext = spectators .. ' Spectators';
     local tW, _ = draw.GetTextSize(spectext);
-    draw.Color( rgb[1], rgb[2], rgb[3], 100 )
+    if fejszincombo:GetValue() == 0 then
+        draw.Color( fejszin:GetValue())
+    elseif fejszincombo:GetValue() == 1 then
+        draw.Color( rgb[1], rgb[2], rgb[3], fejszin_alpha:GetValue() )
+    end
     draw.Text(x + ((w - tW) / 3.65), y + 2, spectext)
 
     drawRectFill(27, 24, 25, 255, x + 7, y + 30, w - 115, h2);
 
     drawOutline(41, 35, 36, 255, x + 7, y + 30, w - 115, h2 , 2);
 	
-    render.gradient( x , y + 18, w - 101, 2, { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
+    render.gradient( x , y + 18, w / 2 - 50, 2, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
 
-
+    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, 2, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
 
 
     ----------------------------------------------------------------------------------------------------------
@@ -172,16 +176,16 @@ local function drawWindow(spectators)
      --
     
     elseif vonal_alt:GetValue() == 1 then
-    render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
+    render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
     
     elseif vonal_alt:GetValue() == 2 then
 
-    render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
+    render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
 
     elseif vonal_alt:GetValue() == 3 then
 
-    render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
-    render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
+    render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
+    render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
   
 end
 	--render.gradient( x + 133,  y + h - 7 , 180 / 2, 4, { 202, 70, 205, 255 }, { 201, 227, 58, 255 }, false );
@@ -200,7 +204,7 @@ end
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.0"; --- This too
+local VERSION_NUMBER = "1.1"; --- This too
 
 local version_check_done = false;
 local update_downloaded = false;
