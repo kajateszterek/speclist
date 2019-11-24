@@ -337,7 +337,7 @@ end
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.2"; --- This too
+local VERSION_NUMBER = "1.2.1"; --- This too
 
 local version_check_done = false;
 local update_downloaded = false;
@@ -430,9 +430,7 @@ local ff = draw.CreateFont('Tahoma', 60)
 local classicf = draw.CreateFont('Tahoma', 12)
 local name = client.GetPlayerNameByIndex(client.GetLocalPlayerIndex())
 local x, y = draw.GetScreenSize()
-   local R = hsvToR((globals.RealTime() * frequency) % 1, saturation, 1)
-    local G = hsvToG((globals.RealTime() * frequency) % 1, saturation, 1)
-    local B = hsvToB((globals.RealTime() * frequency) % 1, saturation, 1)
+
 
 	if enablewm:GetValue() then
 	   if (wmpos1 == 0) then
