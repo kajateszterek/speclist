@@ -9,7 +9,7 @@ local window = gui.Window(window, "zero speclist & utilities", 200, 200, 500, 50
 local iconfont = draw.CreateFont("Wifi Icons", 25, 1 )
 --local ittleszxd = gui.Reference("SETTINGS", "Miscellaneous")
 --group1
-local grp1 = gui.Groupbox(window, "Main", 10,10,235,450)
+local grp1 = gui.Groupbox(window, "Main", 10,10,235,220)
 local enablespec = gui.Checkbox( grp1, "en_spec", "Enable Spectator List", 1 )
 local hidespec = gui.Checkbox( grp1, "hidespec", "Hide Idle Spectator List", 0 )
 local rgbmode = gui.Combobox( grp1, "rgbmode", "RGB Mode", "Animated", "Static" )
@@ -21,7 +21,7 @@ local fejszin_alpha = gui.Slider( grp1, "dxh", "RGB header alpha", "100", "0", "
 local specline_thic = gui.Slider( grp1, "line_thic", "Spectator List Line Thickness", 2, 1, 3)
 --group1 end
 --group2
-local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,450)
+local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,220)
 local aamode1 = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Swing", "Jitter", "Offset" )
 local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 1 )
 --[[local aamode = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Offset", "Jitter", "Swing" )]]
@@ -412,7 +412,7 @@ end
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.4"; --- This too
+local VERSION_NUMBER = "1.5"; --- This too
 
 local version_check_done = false;
 local update_downloaded = false;
@@ -704,7 +704,7 @@ callbacks.Register( "Draw", function()
         end
 
         -- Set Original values after the user defined time after the shot.
-        if shotTime1 + 250 / 1000 < globals.CurTime() then
+        if shotTime1 + 50 / 1000 < globals.CurTime() then
             gui.SetValue("rbot_antiaim_stand_desync", oldBool1)
             gui.SetValue("rbot_antiaim_move_desync", oldMode1)
             gui.SetValue("rbot_antiaim_stand_real", oldBool11)
@@ -744,3 +744,126 @@ callbacks.Register("FireGameEvent", function(event)
         end
     end
 end)
+
+
+
+local primaryWeapons = {
+    {"None", nil};
+    { "SCAR 20 | G3SG1", "scar20" };
+    { "SSG 008", "ssg08" };
+    { "AWP", "awp" };
+    { "G3 SG1 | AUG", "sg556" };
+    { "AK 47 | M4A1", "ak47" };
+};
+local secondaryWeapons = {
+    {"None", nil};
+    { "Dual Elites", "elite" };
+    { "Desert Eagle | R8 Revolver", "deagle" };
+    { "Five Seven | Tec 9", "tec9" };
+    { "P250", "p250" };
+};
+local armors = {
+    { "None", nil, nil };
+    { "Kevlar Vest", "vest", nil };
+    { "Kevlar Vest + Helmet", "vest", "vesthelm" };
+};
+local granades = {
+    { "None", nil, nil };
+    { "Grenade", "hegrenade", nil };
+    { "Flashbang", "flashbang", nil };
+    { "Smoke Grenade", "smokegrenade", nil };
+    { "Decoy Grenade", "decoy", nil };
+    { "Molotov | Incindiary Grenade", "molotov", "incgrenade" };
+};
+
+local autoBuyGroup = gui.Groupbox(window, "Auto Buy", 10, 240, 235, 220);
+local enabled = gui.Checkbox(autoBuyGroup, "rab_autobuy_masterswitch", "Enabled Auto Buy", false);
+local printLogs = gui.Checkbox(autoBuyGroup, "rab_autobuy_printlogs", "Print Logs To Aimware Console", false);
+local concatCommand = gui.Checkbox(autoBuyGroup, "rab_autobuy_concat", "Concact Buy Command", false);
+concatCommand:SetValue(true);
+local primaryWeaponSelection = gui.Combobox(autoBuyGroup, "rab_autobuy_primary_weapon", "Primary Weapon", primaryWeapons[1][1], primaryWeapons[2][1], primaryWeapons[3][1], primaryWeapons[4][1], primaryWeapons[5][1], primaryWeapons[6][1]);
+local secondaryWeaponSelection = gui.Combobox(autoBuyGroup, "rab_autobuy_secondary_weapon", "Secondary Weapon", secondaryWeapons[1][1], secondaryWeapons[2][1], secondaryWeapons[3][1], secondaryWeapons[4][1], secondaryWeapons[5][1]);
+local armorSelection = gui.Combobox(autoBuyGroup, "rab_autobuy_armor", "Armor", armors[1][1], armors[2][1], armors[3][1]);
+armorSelection:SetValue(2);
+local granadeSlot1 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_1", "Grenade Slot #1", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+granadeSlot1:SetValue(1);
+local granadeSlot2 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_2", "Grenade Slot #2", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+granadeSlot2:SetValue(3);
+local granadeSlot3 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_3", "Grenade Slot #3", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+granadeSlot3:SetValue(5);
+local granadeSlot4 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_4", "Grenade Slot #4", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+granadeSlot4:SetValue(2);
+local taser = gui.Checkbox(autoBuyGroup, "rab_autobuy_taser", "Buy Taser", false);
+local defuseKit = gui.Checkbox(autoBuyGroup, "rab_autobuy_defusekit", "Buy Defuse Kit", false);
+
+local function getSingleTableItem(selection, table)
+    return table[selection:GetValue() + 1][2];
+end
+
+local function getMultiTableItems(seletion, table)
+    local table = table[seletion:GetValue() + 1];
+    return { table[2], table[3] };
+end
+
+local function insertToTableNonNull(tableToInsertTo, table1)
+    for i = 1, #table1 do
+        local item = table1[i];
+        if (item ~= nil) then
+            table.insert(tableToInsertTo, item);
+        end
+    end
+end
+
+local function inserToTableBool(tableToInserTo, bool, itemToInsert)
+    if (bool:GetValue()) then
+        table.insert(tableToInserTo, itemToInsert);
+    end
+end
+
+local function buy(items, concat)
+    local buyCommand = '';
+    for i = 1, #items do
+        local item = items[i];
+        if (concat) then
+            buyCommand = buyCommand .. 'buy "' .. item .. '"; ';
+        else
+            if (printLogs:GetValue()) then
+                print('Bought x1 ' .. item);
+            end;
+            client.Command('buy "' .. item .. '";', true);
+        end;
+    end;
+    if (buyCommand ~= '') then
+        if (printLogs:GetValue()) then
+            print('Bought x' .. #items .. ' items');
+        end;
+        client.Command(buyCommand);
+    end;
+end
+
+callbacks.Register('FireGameEvent', function(e)
+    local lp, en, ui = entities.GetLocalPlayer(), e:GetName(), client.GetPlayerIndexByUserID(e:GetInt('userid'));
+    if (enabled:GetValue() ~= true or lp == nil or en ~= "player_spawn" or ui ~= lp:GetIndex()) then return
+    end;
+    local stuffToBuy = {};
+    table.insert(stuffToBuy, getSingleTableItem(primaryWeaponSelection, primaryWeapons))
+    table.insert(stuffToBuy, getSingleTableItem(secondaryWeaponSelection, secondaryWeapons));
+    insertToTableNonNull(stuffToBuy, getMultiTableItems(armorSelection, armors));
+    inserToTableBool(stuffToBuy, defuseKit, 'defuser');
+    insertToTableNonNull(stuffToBuy, getMultiTableItems(granadeSlot1, granades));
+    insertToTableNonNull(stuffToBuy, getMultiTableItems(granadeSlot2, granades));
+    insertToTableNonNull(stuffToBuy, getMultiTableItems(granadeSlot3, granades));
+    insertToTableNonNull(stuffToBuy, getMultiTableItems(granadeSlot4, granades));
+    inserToTableBool(stuffToBuy, taser, 'taser');
+    buy(stuffToBuy, concatCommand:GetValue());
+end);
+
+
+
+
+client.AllowListener("player_spawn");
+
+
+
+
+local fourthgroup = gui.Groupbox(window, "Other", 255, 240, 235, 220);
