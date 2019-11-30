@@ -18,11 +18,13 @@ local vonal_alt = gui.Combobox( grp1, "miyu_ocsi_dd", "Line Options", "None", "T
 local thiccness = gui.Slider( grp1, "haligvastag", "Line Width", 2.5, 1, 5)
 local fejszincombo = gui.Combobox( grp1, "miyu_ocsi_ddd", "Header text color", "Static", "RGB" )
 local fejszin_alpha = gui.Slider( grp1, "dxh", "RGB header alpha", "100", "0", "255" )
+local specline_thic = gui.Slider( grp1, "line_thic", "Spectator List Line Thickness", 2, 1, 3)
 --group1 end
 --group2
-local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,450)--[[
-local antiaim = gui.Checkbox( grp2, "antiaim", "Enable", 0 )
-local aamode = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Offset", "Jitter", "Swing" )]]
+local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,450)
+local aamode1 = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Swing", "Jitter", "Offset" )
+local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 1 )
+--[[local aamode = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Offset", "Jitter", "Swing" )]]
 --group2 end
 --colors
 local specszin = gui.ColorEntry( "dxhooker", "Spectators' name color ", 150, 200, 50, 255 )
@@ -69,6 +71,8 @@ end
 
 
 
+
+
 local function getSpectators()
     local spectators = {};
     local lp = entities.GetLocalPlayer();
@@ -103,9 +107,9 @@ end
 
 local function drawRectFill(r, g, b, a, x, y, w, h, texture)
     if (texture ~= nil) then
-        draw.SetTexture(texture);
+        --draw.SetTexture(texture);
     else
-        draw.SetTexture(r, g, b, a);
+        --draw.SetTexture(r, g, b, a);
     end
     draw.Color(r, g, b, a);
     draw.FilledRect(x, y, x + w, y + h);
@@ -205,15 +209,15 @@ local function drawWindow(spectators)
 
     if rgbmode:GetValue() == 0 then
 	
-    render.gradient( x , y + 18, w / 2 - 50, 1.5, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
+    render.gradient( x , y + 18, w / 2 - 50, specline_thic:GetValue(), { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
 
-    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, 1.5, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
+    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, specline_thic:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
 
     elseif rgbmode:GetValue() == 1 then
 
-    render.gradient( x , y + 18, w / 2 - 50, 1.5, { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+    render.gradient( x , y + 18, w / 2 - 50, specline_thic:GetValue(), { 30, 87, 153, 255 }, { 243, 0, 255}, false );
 
-    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, 1.5, { 243, 0, 255, 200 }, { 224, 255, 0}, false );
+    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, specline_thic:GetValue(), { 243, 0, 255, 200 }, { 224, 255, 0}, false );
 
 
     end
@@ -408,7 +412,7 @@ end
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.3"; --- This too
+local VERSION_NUMBER = "1.4"; --- This too
 
 local version_check_done = false;
 local update_downloaded = false;
@@ -466,7 +470,6 @@ local function versionwm()
     
 end
 
---AA
 
 
 
@@ -480,10 +483,9 @@ callbacks.Register("Draw", function()
     end]]
     
     local spectators = getSpectators();
-
-
     
-    openwindow()
+    
+    openwindow();
     versionwm();
     if enablespec:GetValue() then
         gui.SetValue( "msc_showspec", 0 )
@@ -505,3 +507,240 @@ callbacks.Register("Draw", function()
     dragFeature();
 end)
 
+
+
+local delay = aaspeed:GetValue()
+local timer = timer or {}
+local timers = {}
+
+
+function timer.Create(name, delay, times, func)
+
+    table.insert(timers, {["name"] = name, ["delay"] = delay, ["times"] = times, ["func"] = func, ["lastTime"] = globals.RealTime()})
+
+end
+
+function timer.Remove(name)
+
+    for k,v in pairs(timers or {}) do
+ 
+        if (name == v["name"]) then table.remove(timers, k) end
+ 
+    end
+
+end
+
+function timer.Tick()
+
+    for k,v in pairs(timers or {}) do
+ 
+        if (v["times"] <= 0) then table.remove(timers, k) end
+     
+        if (v["lastTime"] + v["delay"] <= globals.RealTime()) then
+            timers[k]["lastTime"] = globals.RealTime()
+            timers[k]["times"] = timers[k]["times"] - 111
+            v["func"]()
+        end
+ 
+    end
+
+end
+
+callbacks.Register( "Draw", "timerTick", timer.Tick);
+
+
+timer.Create("Gay", 1, 2, function() Gay1() end)
+
+
+function Gay1()
+   
+timer.Create("Gay1", aaspeed:GetValue(), aaspeed:GetValue(), function()
+    if aamode1:GetValue() == 0 then
+    gui.SetValue( "rbot_antiaim_stand_desync", 2 )
+gui.SetValue( "rbot_antiaim_move_desync", 3 )
+Gay2()
+    elseif aamode1:GetValue() == 1 then
+        gui.SetValue( "rbot_antiaim_stand_desync", 1 )
+    gui.SetValue( "rbot_antiaim_move_desync", 3 )
+    Gay2()
+elseif aamode1:GetValue() == 2 then
+    gui.SetValue( "rbot_antiaim_stand_desync", 1 )
+gui.SetValue( "rbot_antiaim_move_desync", 3 )
+    Gay2()
+end
+end)
+end
+
+
+function Gay2()
+   
+    timer.Create("Gay2", aaspeed:GetValue(), aaspeed:GetValue(), function()
+        if aamode1:GetValue() == 0 then
+        gui.SetValue( "rbot_antiaim_stand_desync", 3  )
+gui.SetValue( "rbot_antiaim_move_desync", 2 )
+        Gay1()
+        elseif aamode1:GetValue() == 1 then
+            gui.SetValue( "rbot_antiaim_stand_desync", 4 )
+    gui.SetValue( "rbot_antiaim_move_desync", 4 )
+            Gay1()
+        elseif aamode1:GetValue() == 2 then
+            gui.SetValue( "rbot_antiaim_stand_desync", 3 )
+    gui.SetValue( "rbot_antiaim_move_desync", 2 )
+            Gay1()
+        end
+    end)
+end
+
+--AA
+
+
+
+
+--AA
+
+
+
+
+
+
+local isActive = gui.Checkbox(grp2, "zero_flick_onshot", "Pitch Flick", 0)
+local flickmode = gui.Combobox(grp2, "zero_flick_mode", "Flick Mode", "Up (Don't use Up Pitch)", "Down (Don't use Down/Emotion Pitch)", "Zero (Don't use Zero Pitch)" )
+local flickTime = gui.Slider(grp2, "zero_msc_flick_time", "Flick Time (in ms)", 250, 1, 1000)
+local shotTime = globals.CurTime();
+local shooting = false;
+local configRecover = true;
+local oldBool = 0;
+local oldMode = 0;
+client.AllowListener("weapon_fire")
+
+callbacks.Register( "Draw", function()
+
+    if isActive:GetValue() then
+
+ 
+        if not shooting then
+
+            
+            oldBool = gui.GetValue("rbot_antiaim_stand_pitch_real")
+            oldMode = gui.GetValue("rbot_antiaim_move_pitch_real")
+        end
+
+        
+        if shotTime + flickTime:GetValue() / 1000 < globals.CurTime() then
+            gui.SetValue("rbot_antiaim_stand_pitch_real", oldBool)
+            gui.SetValue("rbot_antiaim_move_pitch_real", oldMode)
+            shooting = false
+        end
+    end
+end)
+
+callbacks.Register("FireGameEvent", function(event)
+
+    if isActive:GetValue() then
+
+        if event:GetName() == "weapon_fire" then 
+           
+            EventUserId = event:GetInt("userid") 
+            pLocalInfo = client.GetPlayerInfo(client.GetLocalPlayerIndex()) 
+
+            if pLocalInfo["UserID"] == EventUserId then 
+           
+                shooting = true 
+
+               if flickmode:GetValue() == 0 then
+                gui.SetValue("rbot_antiaim_stand_pitch_real", 3)
+                gui.SetValue("rbot_antiaim_move_pitch_real", 3)
+                configRecover = true
+               elseif flickmode:GetValue() == 1 then
+                gui.SetValue("rbot_antiaim_stand_pitch_real", 2)
+                gui.SetValue("rbot_antiaim_move_pitch_real", 2)
+                configRecover = true
+            elseif flickmode:GetValue() == 2 then
+                gui.SetValue("rbot_antiaim_stand_pitch_real", 4)
+                gui.SetValue("rbot_antiaim_move_pitch_real", 4)
+                configRecover = true
+            end
+                shotTime = globals.CurTime()
+            end
+        end
+    end
+end)
+
+
+
+
+
+
+
+
+--onshot desync
+
+local isActive1 = gui.Checkbox(grp2, "zero_desync_onshot", "On-shot desync", 0)
+local shotTime1 = globals.CurTime();
+local shooting1 = false;
+local configRecover1 = true;
+local oldBool1 = 0;
+local oldMode1 = 0;
+local oldBool11 = 0;
+local oldMode11 = 0;
+local oldBool21 = 0;
+local oldMode21 = 0;
+client.AllowListener("weapon_fire")
+
+callbacks.Register( "Draw", function()
+
+    if isActive1:GetValue() then
+
+        -- Save Original Values if we aren't on the shooting fakelag.
+        if not shooting1 then
+
+            -- Actually save the values.
+            oldBool1 = gui.GetValue("rbot_antiaim_stand_desync")
+            oldMode1 = gui.GetValue("rbot_antiaim_move_desync")
+            oldBool11 = gui.GetValue("rbot_antiaim_stand_real")
+            oldMode11 = gui.GetValue("rbot_antiaim_move_real")
+            oldBool21 = gui.GetValue("rbot_antiaim_stand_pitch_real")
+            oldMode21 = gui.GetValue("rbot_antiaim_move_pitch_real")
+        end
+
+        -- Set Original values after the user defined time after the shot.
+        if shotTime1 + 250 / 1000 < globals.CurTime() then
+            gui.SetValue("rbot_antiaim_stand_desync", oldBool1)
+            gui.SetValue("rbot_antiaim_move_desync", oldMode1)
+            gui.SetValue("rbot_antiaim_stand_real", oldBool11)
+            gui.SetValue("rbot_antiaim_move_real", oldMode11)
+            gui.SetValue("rbot_antiaim_stand_pitch_real", oldBool21)
+            gui.SetValue("rbot_antiaim_move_pitch_real", oldMode21)
+            shooting1 = false
+        end
+    end
+end)
+
+callbacks.Register("FireGameEvent", function(event)
+
+    if isActive1:GetValue() then
+
+        if event:GetName() == "weapon_fire" then -- Check if the event is the weapon_fire event.
+           
+            EventUserId = event:GetInt("userid") -- Get the event userId (userId of the person that triggered the event/that shot)
+            pLocalInfo = client.GetPlayerInfo(client.GetLocalPlayerIndex()) -- Get a table of information about our localplayer
+
+            if pLocalInfo["UserID"] == EventUserId then -- Compare the eventUserId and the table entry with the local userId.
+           
+                shooting1 = true --- Set bool to true to make the settings recovering work.
+
+                -- Set our wanted values.
+                gui.SetValue("rbot_antiaim_stand_pitch_real", 0)
+                gui.SetValue("rbot_antiaim_move_pitch_real", 0)
+                gui.SetValue("rbot_antiaim_stand_real", 0)
+                gui.SetValue("rbot_antiaim_move_real", 0)
+                gui.SetValue("rbot_antiaim_stand_desync", 2)
+                gui.SetValue("rbot_antiaim_move_desync", 2)
+                configRecover1 = true
+
+                -- Set our shot time so the settings recover can use it.
+                shotTime1 = globals.CurTime()
+            end
+        end
+    end
+end)
