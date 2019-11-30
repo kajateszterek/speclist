@@ -1,16 +1,36 @@
 local mouseX, mouseY, x, y, dx, dy, w, h = 0, 0, 25, 660, 0, 0, 300, 60;
 local shouldDrag = false;
-local font_title = draw.CreateFont("Smallest Pixel-7", 16, 5);
+local font_title = draw.CreateFont("Bahnschrift SemiBold SemiCondensed", 16, 20);
 local font_spec = draw.CreateFont("Tahoma", 13, 1);
 local topbarSize = 25;
-local ittleszxd = gui.Reference("SETTINGS", "Miscellaneous")
-local line1 = gui.Slider(ittleszxd , "halig", "Line Fade Speed", 2.5, 0.1, 20 )
-local vonal_alt = gui.Combobox( ittleszxd, "miyu_ocsi_dd", "Line Options", "None", "Top", "Bottom", "Both" )
-local thiccness = gui.Slider( ittleszxd, "haligvastag", "Vasstaggságg =D", 2.5, 0.1, 300)
+local windowmade = 0
+local windowactive = 0
+local window = gui.Window(window, "zero speclist & utilities", 200, 200, 500, 500)
+local iconfont = draw.CreateFont("Wifi Icons", 25, 1 )
+--local ittleszxd = gui.Reference("SETTINGS", "Miscellaneous")
+--group1
+local grp1 = gui.Groupbox(window, "Main", 10,10,235,450)
+local enablespec = gui.Checkbox( grp1, "en_spec", "Enable Spectator List", 1 )
+local hidespec = gui.Checkbox( grp1, "hidespec", "Hide Idle Spectator List", 0 )
+local rgbmode = gui.Combobox( grp1, "rgbmode", "RGB Mode", "Animated", "Static" )
+local line1 = gui.Slider(grp1 , "halig", "Line Fade Speed", 2.5, 0.1, 10 )
+local vonal_alt = gui.Combobox( grp1, "miyu_ocsi_dd", "Line Options", "None", "Top", "Bottom" )
+local thiccness = gui.Slider( grp1, "haligvastag", "Line Width", 2.5, 1, 5)
+local fejszincombo = gui.Combobox( grp1, "miyu_ocsi_ddd", "Header text color", "Static", "RGB" )
+local fejszin_alpha = gui.Slider( grp1, "dxh", "RGB header alpha", "100", "0", "255" )
+--group1 end
+--group2
+local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,450)--[[
+local antiaim = gui.Checkbox( grp2, "antiaim", "Enable", 0 )
+local aamode = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Offset", "Jitter", "Swing" )]]
+--group2 end
+--colors
 local specszin = gui.ColorEntry( "dxhooker", "Spectators' name color ", 150, 200, 50, 255 )
 local fejszin = gui.ColorEntry( "dxhooker", "Spectator list Header text color ", 150, 150, 150, 255 )
-local fejszincombo = gui.Combobox( ittleszxd, "miyu_ocsi_ddd", "Header text color", "Static", "RGB" )
-local fejszin_alpha = gui.Slider( ittleszxd, "dxh", "RGB header alpha", "100", "0", "255" )
+local outlinecol = gui.ColorEntry( "outlinecol", "Outline Color", 0, 0, 0, 255 )
+local innneroutlinecol = gui.ColorEntry( "innneroutlinecol", "Inner Otline Color", 40, 40, 40, 255 )
+local innercol = gui.ColorEntry( "innercol", "Inner Color", 0, 0, 0, 255)
+--colors end
 
 
 local render = {};
@@ -131,24 +151,42 @@ function getFadeRGB(speed)
     return {r, g, b};
 end
 
+
+local function openwindow()
+	if gui.Reference("MENU"):IsActive() and windowactive == 0 then
+		window:SetActive(1)
+		windowactive = 1
+	elseif not gui.Reference("MENU"):IsActive() and windowactive == 1 then
+		window:SetActive(0)
+	    windowactive = 0
+    end
+end
+
 local function drawWindow(spectators)
     local h2 = h - 60 + (spectators * 11);
     local h = h + (spectators * 11);
     local rgb = getFadeRGB(line1:GetValue());
     local scrinx, scriny = draw.GetScreenSize()
-
+    local gr, gg, gb, ga = innneroutlinecol:GetValue()
+    local rr, rg, rb, ra = innercol:GetValue()
+    
     -- Draw small outline
-    draw.Color(0, 0, 0, 255);
+    draw.Color(outlinecol:GetValue());
     draw.OutlinedRect(x - 6, y - 6, x + w - 94, y + h - 15);
 
     -- Draw big outline
-    drawOutline(30, 30, 30, 255, x, y, w - 100, h - 20, 5);
+    drawOutline(gr, gg, gb, ga, x, y, w - 100, h - 20, 5);
 
 
     -- Draw the main bg
-    drawRectFill(0, 0, 0, 255, x, y, w - 100, h - 20);
+    drawRectFill(rr, rg, rb, ra, x, y, w - 100, h - 20);
 
-    
+    --[[local resetcol = gui.Button(ittleszxd, "Reset Colors", function()
+		
+        gr, gg, gb, ga = 0, 0, 0, 255 
+        rr, rg, rb, ra = 40, 40, 40, 255 
+        --outlinecol:SetValue( 0, 0, 0, 255 )
+    end)]]
     -- Draw the text
     draw.Color(255, 255, 255);
     draw.SetFont(font_title);
@@ -159,17 +197,28 @@ local function drawWindow(spectators)
     elseif fejszincombo:GetValue() == 1 then
         draw.Color( rgb[1], rgb[2], rgb[3], fejszin_alpha:GetValue() )
     end
-    draw.Text(x + ((w - tW) / 3.65), y + 2, spectext)
+    draw.Text(x + ((w - tW) / 3.4), y + 1, spectext)
 
     drawRectFill(27, 24, 25, 255, x + 7, y + 30, w - 115, h2);
 
     drawOutline(41, 35, 36, 255, x + 7, y + 30, w - 115, h2 , 2);
+
+    if rgbmode:GetValue() == 0 then
 	
-    render.gradient( x , y + 18, w / 2 - 50, 2, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
+    render.gradient( x , y + 18, w / 2 - 50, 1.5, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
 
-    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, 2, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
+    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, 1.5, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
+
+    elseif rgbmode:GetValue() == 1 then
+
+    render.gradient( x , y + 18, w / 2 - 50, 1.5, { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+
+    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, 1.5, { 243, 0, 255, 200 }, { 224, 255, 0}, false );
 
 
+    end
+
+if rgbmode:GetValue() == 0 then
     ----------------------------------------------------------------------------------------------------------
     if vonal_alt:GetValue() == 0 then
      --
@@ -181,14 +230,36 @@ local function drawWindow(spectators)
 
     render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
 
-    elseif vonal_alt:GetValue() == 3 then
+    --[[elseif vonal_alt:GetValue() == 3 then
 
     render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
+    render.gradient( 0 , thiccness:GetValue(), thiccness:GetValue(), scriny / 0.2 , { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, true);
+    render.gradient( 0 , scriny / 1, thiccness:GetValue(), scriny , { rgb[3], rgb[2], rgb[1], 255 }, { rgb[2], rgb[3], rgb[1]}, true);
+    render.gradient( scrinx - thiccness:GetValue() , thiccness:GetValue(), thiccness:GetValue(), scriny / 0.2 , {  rgb[1], rgb[2], rgb[3], 255 }, {rgb[2], rgb[3], rgb[1]}, true);
+    render.gradient( scrinx - thiccness:GetValue() , scriny / 1, thiccness:GetValue(), scriny , { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, true);
     render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-  
+    
+    --render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, true );
+  ]]
 end
-	--render.gradient( x + 133,  y + h - 7 , 180 / 2, 4, { 202, 70, 205, 255 }, { 201, 227, 58, 255 }, false );
-	
+elseif rgbmode:GetValue() == 1 then
+    if vonal_alt:GetValue() == 0 then
+        --
+       
+       elseif vonal_alt:GetValue() == 1 then
+       render.gradient( 0 , 0, scrinx , thiccness:GetValue(), { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+       elseif vonal_alt:GetValue() == 2 then
+   
+       render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+   
+       --[[elseif vonal_alt:GetValue() == 3 then
+   
+       render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(),  { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+       render.gradient( 0 , 0, scrinx, thiccness:GetValue(),  { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+	--render.gradient( x + 133,  y + h - 7 , 180 / 2, 4, { 202, 70, 205, 255 }, { 201, 227, 58, 255 }, false );]]
+       end
+    end
+
 end
 
 local function watermark()
@@ -337,7 +408,7 @@ end
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.2.1"; --- This too
+local VERSION_NUMBER = "1.3"; --- This too
 
 local version_check_done = false;
 local update_downloaded = false;
@@ -386,309 +457,16 @@ end
 callbacks.Register("Draw", updateEventHandler);
 
 local function versionwm()
-
+    local xax = 120
+    local rgb = getFadeRGB(line1:GetValue());
     local scrx, scry = draw.GetScreenSize()
-
-    draw.Color( 255, 255, 255, 150 )
+    draw.Color( rgb[1], rgb[2], rgb[3], 200 )
     draw.SetFont(font_spec)
-    draw.Text( scrx - 61.5, scry - 12, "Version: " .. VERSION_NUMBER)
+    draw.Text( xax, scry - 12, "Version: " .. VERSION_NUMBER)
     
 end
 
-
-
-
-
-
-local abs_frame_time = globals.AbsoluteFrameTime;     local frame_rate = 0.0; local get_abs_fps = function()  frame_rate = 0.9 * frame_rate + (1.0 - 0.9) * abs_frame_time(); return math.floor((1.0 / frame_rate) + 0.5);  end
-frequency = 0 -- range: [0, oo) | lower is slower
-intensity = 180 -- range: [0, 255] | lower is darker
-saturation = 1 -- range: [0.00, 1.00] | lower is less saturated
-
-
-
-
-local wmgroup = gui.Groupbox( ittleszxd, "Watermark", 1, 600, 213, 200 );
-local enablewm = gui.Checkbox( wmgroup, "lua_wm_enable", "Enable", 1 );
-local aw_text = gui.Checkbox( wmgroup, "lua_wm_awtext", "cheat name", 1);
-local wmpos = gui.Combobox( wmgroup, "lua_wm_pos", "Position (WIP)", "Top left");
-local show_fps = gui.Checkbox( wmgroup, "lua_wm_showfps", "Show fps", 1);
-local show_ping = gui.Checkbox( wmgroup, "lua_wm_showping", "Show ping", 1);
-local draw_line = gui.Checkbox( wmgroup, "lua_wm_drawline", "Draw line", 1);
-
-
-local function use_Crayon()
-if entities.GetLocalPlayer() == nil then
-      return
-end
-local rgb = getFadeRGB(line1:GetValue());
-local wmpos1 = wmpos:GetValue();
-local text = aw_text:GetValue();
-local fps = show_fps:GetValue();
-local ping = show_ping:GetValue();
-local ff = draw.CreateFont('Tahoma', 60)
-local classicf = draw.CreateFont('Tahoma', 12)
-local name = client.GetPlayerNameByIndex(client.GetLocalPlayerIndex())
-local x, y = draw.GetScreenSize()
-
-
-	if enablewm:GetValue() then
-	   if (wmpos1 == 0) then
-		   draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 20, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 15, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 16, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 21, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 19, 29)
-		   if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-		--   draw.FilledRect(8, 11, 15, 12)
-		   end
-		if aw_text:GetValue() then
-		   draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 90, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 85, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 86, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 91, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 89, 29)
-		   if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-           render.gradient( 9, 11, 38, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-           render.gradient( 48, 11, 36, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-		 --  draw.FilledRect(9, 11, 85, 12)
-		   end
-		end
-		
-	    if show_fps:GetValue() then
-		   if aw_text:GetValue() then
-		   draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 130, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 125, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 126, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 131, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 129, 29)
-		   if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-           render.gradient( 9, 11, 60, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-           render.gradient( 70, 11, 54, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-		 --  draw.FilledRect(9, 11, 125, 12)
-		   end
-		   else 
-		   draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 60, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 55, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 56, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 61, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 59, 29)
-		   if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-           render.gradient( 9, 11, 20, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-           render.gradient( 30, 11, 24, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-		  -- draw.FilledRect(9, 11, 55, 12)
-		   end
-		   end
-		end
-		
-		if show_ping:GetValue() then
-		   if show_fps:GetValue() then
-		   draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 110, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 95, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 106, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 111, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 109, 29)
-		   if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-           render.gradient( 9, 11, 45, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-           render.gradient( 55, 11, 50, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-		   --draw.FilledRect(9, 11, 105, 12)
-		   end
-		   else
-		   draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 60, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 55, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 56, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 61, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 59, 29)
-		   if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-           render.gradient( 9, 11, 20, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-           render.gradient( 30, 11, 24, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-		   --draw.FilledRect(9, 11, 55, 12)
-		   end
-		   end
-		end
-		
-		if show_ping:GetValue() then
-		   if aw_text:GetValue() then
-           draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 130, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 125, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 126, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 131, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 129, 29)
-           if draw_line:GetValue() then
-           draw.Color(255, 255, 255, 255)
-           render.gradient( 9, 11, 55, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-           render.gradient( 65, 11, 59, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-           end
-		   end
-        end
-		
-		if show_ping:GetValue() then
-		   if aw_text:GetValue() then
-		     if show_fps:GetValue() then
-           draw.Color(35, 35, 35, 255)
-           draw.FilledRect(3, 5, 180, 30)
-           draw.Color(15, 15, 15, 180)
-           draw.FilledRect(8, 10, 175, 25)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(8, 10, 176, 26)
-           draw.Color(0, 0, 0, 255)
-           draw.OutlinedRect(2, 4, 181, 31)
-           draw.Color(70, 70, 70, 180)
-           draw.OutlinedRect(3, 5, 179, 29)
-           if draw_line:GetValue() then
-            render.gradient( 9, 11, 85, 1, { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
-            render.gradient( 95, 11, 79.5, 1, { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-           draw.Color(255, 255, 255, 255)
-           --draw.FilledRect(9, 11, 175, 12)
-           end
-		   end
-		   end
-        end
-		
-		-- fps
-		   if show_fps:GetValue() then  
-                if aw_text:GetValue() then			  
-           draw.SetFont(classicf)
-           draw.Color(255, 255, 255, 255)
-           draw.Text(82, 12, "fps: ".. get_abs_fps())
-		   draw.Color(235, 235, 235, 255)
-           draw.Text(74, 12, "|") 
-		   else
-		   draw.SetFont(classicf)
-           draw.Color(255, 255, 255, 255)
-           draw.Text(13, 12, "fps: ".. get_abs_fps())
-		   draw.Color(235, 235, 235, 255)
-		   end
-		    end
-		--ping
-	       if show_ping:GetValue() then
-			   if aw_text:GetValue() then
-			     if not show_fps:GetValue() then
-		   draw.SetFont(classicf)
-           local m_iPing = entities.GetPlayerResources():GetPropInt("m_iPing", client.GetLocalPlayerIndex())
-           draw.Color(255, 255, 255, 255)
-           draw.Text(80, 12, "ms: ".. m_iPing)
-           draw.Color(255, 255, 255, 255)
-           draw.Text(73, 12, "|")  	   	
-		      end
-		  if show_fps:GetValue() then 
-		    if aw_text:GetValue() then
-		   draw.SetFont(classicf)
-           local m_iPing = entities.GetPlayerResources():GetPropInt("m_iPing", client.GetLocalPlayerIndex())
-           draw.Color(255, 255, 255, 255)
-           draw.Text(130, 12, "ms: ".. m_iPing)
-           draw.Color(255, 255 , 255, 255)
-           draw.Text(123, 12, "|")  
-		   end
-		   end
-          end
-		end
-		if show_ping:GetValue() then
-		  if not show_fps:GetValue() then
-		    if not aw_text:GetValue() then
-					   draw.SetFont(classicf)
-           local m_iPing = entities.GetPlayerResources():GetPropInt("m_iPing", client.GetLocalPlayerIndex())
-           draw.Color(255, 255, 255, 255)
-           draw.Text(15, 12, "ms: ".. m_iPing)
-		  end
-		end
-	  end
-	  	if show_ping:GetValue() then 
-		    if not aw_text:GetValue() then
-			 if show_fps:GetValue() then
-		   draw.SetFont(classicf)
-           local m_iPing = entities.GetPlayerResources():GetPropInt("m_iPing", client.GetLocalPlayerIndex())
-           draw.Color(255, 255, 255, 255)
-           draw.Text(60, 12, "ms: ".. m_iPing)
-           draw.Color(255, 255 , 255,  255)
-           draw.Text(53, 12, "|")  
-		   end
-		   end
-		   end
-	end
-        -- text		   
-	       if aw_text:GetValue() then
-           draw.SetFont(classicf)
-           draw.Color(214, 214, 214, 230)
-           draw.Text(22, 12, "AIM")
-           draw.Color(255, 0, 0, 230)
-           draw.Text(40, 12, "WARE") 
-           draw.Color(214, 214, 214, 230)
-           draw.Text(53, 12, "")		   
-	       end
-    end
-
-end
-
-callbacks.Register('Draw', 'use_Crayon', use_Crayon)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--AA
 
 
 
@@ -697,16 +475,33 @@ callbacks.Register("Draw", function()
 
 
 	 local lp = entities.GetLocalPlayer();
-    if lp == nil then
+    --[[if lp == nil then
 	return
-	end
+    end]]
+    
     local spectators = getSpectators();
-    if (#spectators == 0) then
+
+
+    
+    openwindow()
+    versionwm();
+    if enablespec:GetValue() then
+        gui.SetValue( "msc_showspec", 0 )
+      if hidespec:GetValue() then
+        if (#spectators == 0) then
+            return
+        end
+            drawWindow(#spectators);
+
+      else
         drawWindow(#spectators);
+      end
+   
+    else
+
     end
     
-    versionwm();
-    drawWindow(#spectators);
     drawindicators(spectators);
     dragFeature();
 end)
+
