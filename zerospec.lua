@@ -2,7 +2,7 @@
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "2.0"; --- This too
+local VERSION_NUMBER = "2.0.1"; --- This too
 local datumakurvaanyad = "06. 12. 2019."
 local divider = " | "
 
@@ -47,7 +47,6 @@ local thiccness = gui.Slider( grp1, "haligvastag", "Line Width", 2.5, 1, 5)
 --group1 end
 --group2
 local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,220)
-local legit = gui.Checkbox( grp2, "legitmode", "Legit Anti-Aim", 0 )
 local aamode1 = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Swing", "Jitter", "Offset" )
 local randomspeed = gui.Checkbox( grp2, "random_speed", "Randomize Speed", 0)
 local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 1 )
@@ -281,7 +280,7 @@ local function drawWindow(spectators)
     
     -- Draw small outline
     draw.Color(outlinecol:GetValue());
-    draw.OutlinedRect(x - 6, y - 6, x + w - 94, y + h - 15);
+    draw.OutlinedRect(x - 6, y - 6, x + w - 94, y + h - 14);
 
     -- Draw big outline
     drawOutline(gr, gg, gb, ga, x, y, w - 100, h - 20, 5);
