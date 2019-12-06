@@ -1,31 +1,80 @@
+
+local SCRIPT_FILE_NAME = GetScriptName();
+local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
+local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
+local VERSION_NUMBER = "2.0"; --- This too
+local datumakurvaanyad = "06. 12. 2019."
+local divider = " | "
+
+local version_check_done = false;
+local update_downloaded = false;
+local update_available = false;
+
+--- Actual code
+
+
 local mouseX, mouseY, x, y, dx, dy, w, h = 0, 0, 25, 660, 0, 0, 300, 60;
 local shouldDrag = false;
 local font_title = draw.CreateFont("Bahnschrift SemiBold SemiCondensed", 16, 20);
 local font_spec = draw.CreateFont("Tahoma", 13, 1);
+local font_dot = draw.CreateFont("Tahoma", 22, 1000);
 local topbarSize = 25;
 local windowmade = 0
 local windowactive = 0
-local window = gui.Window(window, "zero speclist & utilities", 200, 200, 500, 500)
-local iconfont = draw.CreateFont("Wifi Icons", 25, 1 )
+local window = gui.Window(window, "Perspective.LUA", 250, 250, 990, 560)
+local grpinfo = gui.Groupbox( window, "Client Info", 10, 470, 480, 50)
+local updateinfo = gui.Text(grpinfo, "Your Client is up to date!")
+--------------------------------------
+local grpinfo2 = gui.Groupbox( window, "Version Info", 500, 470, 480, 50)
+local build_date = gui.Text(grpinfo2, "Version: " .. VERSION_NUMBER .. divider .. "Build Date: " .. datumakurvaanyad )
+-------------------------------------
 --local ittleszxd = gui.Reference("SETTINGS", "Miscellaneous")
 --group1
 local grp1 = gui.Groupbox(window, "Main", 10,10,235,220)
 local enablespec = gui.Checkbox( grp1, "en_spec", "Enable Spectator List", 1 )
 local hidespec = gui.Checkbox( grp1, "hidespec", "Hide Idle Spectator List", 0 )
-local rgbmode = gui.Combobox( grp1, "rgbmode", "RGB Mode", "Animated", "Static" )
+local rgbmode = gui.Combobox( grp1, "rgbmode", "RGB Mode", "Animated", "Animated(old)", "Gamesense", "Fatality" )
 local line1 = gui.Slider(grp1 , "halig", "Line Fade Speed", 2.5, 0.1, 10 )
-local vonal_alt = gui.Combobox( grp1, "miyu_ocsi_dd", "Line Options", "None", "Top", "Bottom" )
-local thiccness = gui.Slider( grp1, "haligvastag", "Line Width", 2.5, 1, 5)
+local specline_thic = gui.Slider( grp1, "line_thic", "Spectator List Line Thickness", 2, 1, 3)
 local fejszincombo = gui.Combobox( grp1, "miyu_ocsi_ddd", "Header text color", "Static", "RGB" )
 local fejszin_alpha = gui.Slider( grp1, "dxh", "RGB header alpha", "100", "0", "255" )
-local specline_thic = gui.Slider( grp1, "line_thic", "Spectator List Line Thickness", 2, 1, 3)
+--local line2 = gui.Slider(grp1 , "halig", "Right Side Fade Speed", 1.1, 0.1, 10 )
+local vonal_alt = gui.Combobox( grp1, "miyu_ocsi_dd", "Line Options", "None", "Top", "Bottom" )
+local thiccness = gui.Slider( grp1, "haligvastag", "Line Width", 2.5, 1, 5)
+
+
+
 --group1 end
 --group2
 local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,220)
+local legit = gui.Checkbox( grp2, "legitmode", "Legit Anti-Aim", 0 )
 local aamode1 = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Swing", "Jitter", "Offset" )
+local randomspeed = gui.Checkbox( grp2, "random_speed", "Randomize Speed", 0)
 local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 1 )
 --[[local aamode = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Offset", "Jitter", "Swing" )]]
 --group2 end
+
+
+
+
+
+local fourthgroup = gui.Groupbox(window, "Other", 255, 240, 235, 220);
+
+local jumpscoutFix = gui.Checkbox(fourthgroup, "jumpscoutfix", "Disable Auto-Strafer when standing", 0)
+
+--------------------------
+local grp5 = gui.Groupbox(window, "Player Visuals", 500,10,235,450)
+local box_esp = gui.Checkbox(grp5, "vis_kislo_esp_box", "Box ESP", 1)
+local healthbar = gui.Checkbox(grp5, "vis_kislo_esp_hbar", "Health Bar ESP", 1)
+local name_esp = gui.Checkbox(grp5, "vis_kislo_esp_name", "Name ESP", 1)
+local info_esp = gui.Checkbox(grp5, "vis_kislo_esp_info", "Info ESP", 1)
+local weapon_esp = gui.Checkbox(grp5, "vis_kislo_esp_weapon", "Weapon ESP", 1)
+local hit_log = gui.Checkbox(grp5, "vis_kislo_hit_log", "Damage Marker", 1)
+local cross = gui.Checkbox( grp5, "crosshair", "Crosshair Dot", 0)
+
+------------------------------
+local grp6 = gui.Groupbox(window, "Misc Visuals", 745,10,235,450)
+------------------------------
 --colors
 local specszin = gui.ColorEntry( "dxhooker", "Spectators' name color ", 150, 200, 50, 255 )
 local fejszin = gui.ColorEntry( "dxhooker", "Spectator list Header text color ", 150, 150, 150, 255 )
@@ -33,6 +82,7 @@ local outlinecol = gui.ColorEntry( "outlinecol", "Outline Color", 0, 0, 0, 255 )
 local innneroutlinecol = gui.ColorEntry( "innneroutlinecol", "Inner Otline Color", 40, 40, 40, 255 )
 local innercol = gui.ColorEntry( "innercol", "Inner Color", 0, 0, 0, 255)
 --colors end
+
 
 
 local render = {};
@@ -70,6 +120,45 @@ render.gradient = function( x, y, w, h, col1, col2, is_vertical )
 end
 
 
+local function crosshair()
+    local lp = entities.GetLocalPlayer();
+    local screenW, screenH = draw.GetScreenSize()
+    if cross:GetValue() and lp ~= nil then
+        draw.Color( 255, 0, 0, 255)
+        draw.SetFont(font_dot)
+        draw.Text( screenW / 2 - 2.175, screenH / 2 - 16.5, ".")
+    end
+        
+end
+
+
+
+local function velocityStuff()
+
+    if not pLocal then
+        return
+    end
+
+    local vel = math.sqrt(pLocal:GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + pLocal:GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
+
+    if jumpscoutFix:GetValue() then
+        if vel > 5 then
+            gui.SetValue("msc_autostrafer_airstrafe", 1)
+        else
+            gui.SetValue("msc_autostrafer_airstrafe", 0)
+        end
+    end
+
+    if del < globals.CurTime() then
+        switch = not switch
+        del = globals.CurTime() + 0.050
+    end
+
+    if vel > 3 then
+        del = globals.CurTime() + 0.050
+    end
+
+end
 
 
 
@@ -155,6 +244,19 @@ function getFadeRGB(speed)
     return {r, g, b};
 end
 
+function getFadefatylity(speed)
+    local r = math.floor(math.sin(globals.RealTime() * speed) * 70)
+    local g = math.floor(math.sin(globals.RealTime() * speed + 2) * 50)
+    local b = math.floor(math.sin(globals.RealTime() * speed + 4) * 240)
+    return {r, g, b};
+end
+
+function getFadefatylity1(speed)
+    local r = math.floor(math.sin(globals.RealTime() * speed) * 235)
+    local g = math.floor(math.sin(globals.RealTime() * speed + 2) * 5)
+    local b = math.floor(math.sin(globals.RealTime() * speed + 4) * 90)
+    return {r, g, b};
+end
 
 local function openwindow()
 	if gui.Reference("MENU"):IsActive() and windowactive == 0 then
@@ -170,6 +272,9 @@ local function drawWindow(spectators)
     local h2 = h - 60 + (spectators * 11);
     local h = h + (spectators * 11);
     local rgb = getFadeRGB(line1:GetValue());
+    local bgr = getFadeRGB(line1:GetValue() + 1.6);
+    local fatylity = getFadefatylity(1)
+    local fatylity1 = getFadefatylity1(1)
     local scrinx, scriny = draw.GetScreenSize()
     local gr, gg, gb, ga = innneroutlinecol:GetValue()
     local rr, rg, rb, ra = innercol:GetValue()
@@ -209,19 +314,41 @@ local function drawWindow(spectators)
 
     if rgbmode:GetValue() == 0 then
 	
-    render.gradient( x , y + 18, w / 2 - 50, specline_thic:GetValue(), { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
+        render.gradient( x , y + 18 , w / 2 - 50, specline_thic:GetValue(), { rgb[3], rgb[1], rgb[2], 255 }, { rgb[2], rgb[3], rgb[1]}, false );
 
-    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, specline_thic:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
+        render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, specline_thic:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
 
     elseif rgbmode:GetValue() == 1 then
 
-    render.gradient( x , y + 18, w / 2 - 50, specline_thic:GetValue(), { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+        render.gradient( x , y + 18, w - 101, specline_thic:GetValue(), { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
 
-    render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, specline_thic:GetValue(), { 243, 0, 255, 200 }, { 224, 255, 0}, false );
+    elseif rgbmode:GetValue() == 2 then
+
+        render.gradient( x , y + 18, w / 2 - 50, specline_thic:GetValue(), { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+
+        render.gradient( x + ( w / 2 ) - 49, y + 18, w / 2 - 52, specline_thic:GetValue(), { 243, 0, 255, 200 }, { 224, 255, 0}, false );
+
+
+    elseif rgbmode:GetValue() == 3 then
+
+        render.gradient( x , y + 18, w - 101, specline_thic:GetValue(), { 70, 50, 240, 255}, { 235, 5, 90}, false );
 
 
     end
 
+
+end
+
+
+
+local function nagyvonal(w)
+
+    local rgb = getFadeRGB(line1:GetValue());
+    local bgr = getFadeRGB(line1:GetValue() + 1.6);
+    local scrinx, scriny = draw.GetScreenSize()
+    local gr, gg, gb, ga = innneroutlinecol:GetValue()
+    local rr, rg, rb, ra = innercol:GetValue()
+    local rgb = getFadeRGB(line1:GetValue());
 if rgbmode:GetValue() == 0 then
     ----------------------------------------------------------------------------------------------------------
     if vonal_alt:GetValue() == 0 then
@@ -234,19 +361,25 @@ if rgbmode:GetValue() == 0 then
 
     render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
 
-    --[[elseif vonal_alt:GetValue() == 3 then
 
-    render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-    render.gradient( 0 , thiccness:GetValue(), thiccness:GetValue(), scriny / 0.2 , { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, true);
-    render.gradient( 0 , scriny / 1, thiccness:GetValue(), scriny , { rgb[3], rgb[2], rgb[1], 255 }, { rgb[2], rgb[3], rgb[1]}, true);
-    render.gradient( scrinx - thiccness:GetValue() , thiccness:GetValue(), thiccness:GetValue(), scriny / 0.2 , {  rgb[1], rgb[2], rgb[3], 255 }, {rgb[2], rgb[3], rgb[1]}, true);
-    render.gradient( scrinx - thiccness:GetValue() , scriny / 1, thiccness:GetValue(), scriny , { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, true);
-    render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, false );
-    
-    --render.gradient( 0 , 0, scrinx, thiccness:GetValue(), { rgb[2], rgb[3], rgb[1], 255 }, { rgb[1], rgb[2], rgb[3]}, true );
-  ]]
 end
 elseif rgbmode:GetValue() == 1 then
+    if vonal_alt:GetValue() == 0 then
+        --
+       
+       elseif vonal_alt:GetValue() == 1 then
+       render.gradient( 0 , 0, scrinx , thiccness:GetValue(), { rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
+       elseif vonal_alt:GetValue() == 2 then
+   
+       render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), {rgb[1], rgb[2], rgb[3], 255 }, { bgr[1], bgr[2], bgr[3]}, false );
+   
+       
+    --[[ render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(),  { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+        render.gradient( 0 , 0, scrinx, thiccness:GetValue(),  { 30, 87, 153, 255 }, { 243, 0, 255}, false );
+	    render.gradient( x + 133,  y + h - 7 , 180 / 2, 4, { 202, 70, 205, 255 }, { 201, 227, 58, 255 }, false ); ]]
+       end
+    
+elseif rgbmode:GetValue() == 2 then
     if vonal_alt:GetValue() == 0 then
         --
        
@@ -256,17 +389,24 @@ elseif rgbmode:GetValue() == 1 then
    
        render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { 30, 87, 153, 255 }, { 243, 0, 255}, false );
    
-       --[[elseif vonal_alt:GetValue() == 3 then
-   
-       render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(),  { 30, 87, 153, 255 }, { 243, 0, 255}, false );
-       render.gradient( 0 , 0, scrinx, thiccness:GetValue(),  { 30, 87, 153, 255 }, { 243, 0, 255}, false );
-	--render.gradient( x + 133,  y + h - 7 , 180 / 2, 4, { 202, 70, 205, 255 }, { 201, 227, 58, 255 }, false );]]
+       
+
        end
-    end
-
+    elseif rgbmode:GetValue() == 3 then
+        if vonal_alt:GetValue() == 0 then
+            --
+           
+           elseif vonal_alt:GetValue() == 1 then
+           render.gradient( 0 , 0, scrinx , thiccness:GetValue(), { 70, 50, 240, 255}, { 235, 5, 90}, false );
+           elseif vonal_alt:GetValue() == 2 then
+       
+           render.gradient( 0 , scriny - thiccness:GetValue(), scrinx, thiccness:GetValue(), { 70, 50, 240, 255}, { 235, 5, 90}, false );
+       
+           
+    
+           end
+        end
 end
-
-local function watermark()
 
 
 function hsvToR(h, s, v)
@@ -397,8 +537,6 @@ function drawGradient(x,y,w,h,dir,colors)
     end
 end
 
-end
-
 
 local function drawindicators(spectators)
     for index, player in pairs(spectators) do
@@ -409,22 +547,12 @@ local function drawindicators(spectators)
 end
 
 
-local SCRIPT_FILE_NAME = GetScriptName();
-local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
-local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.5"; --- This too
-
-local version_check_done = false;
-local update_downloaded = false;
-local update_available = false;
-
---- Actual code
 
 local function updateEventHandler()
     if (update_available and not update_downloaded) then
         if (gui.GetValue("lua_allow_cfg") == false) then
             draw.Color(255, 0, 0, 255);
-            draw.Text(0, 0, "[ZEROSPEC] An update is available, please enable Lua Allow Config and Lua Editing in the settings tab.");
+            updateinfo:SetText("An update is available, please enable Lua Allow Config and Lua Editing in the settings tab.")
         else
             local new_version_content = http.Get(SCRIPT_FILE_ADDR);
             local old_script = file.Open(SCRIPT_FILE_NAME, "w");
@@ -437,38 +565,34 @@ local function updateEventHandler()
 
     if (update_downloaded) then
         draw.Color(255, 0, 0, 255);
-        draw.Text(0, 0, "[ZEROSPEC] An update has automatically been downloaded, please reload the script.");
+        updateinfo:SetText("An update has automatically been downloaded, please reload the script.")
         return;
     end
 
     if (not version_check_done) then
         if (gui.GetValue("lua_allow_http") == false) then
-            draw.Color(255, 0, 0, 255);
-            draw.Text(0, 0, "[ZEROSPEC] Please enable Lua HTTP Connections in your settings tab to use this script.");
-            return;
+            updateinfo:SetText("Please enable Lua HTTP Connections in your settings tab to use this script.")
+            return
         end
 
         version_check_done = true;
         local version = http.Get(VERSION_FILE_ADDR);
         if (version ~= VERSION_NUMBER) then
             update_available = true;
+            updateinfo:SetText("Your Client Needs to Update")
         end
     end
-end
+end 
+
+
 
 
 
 callbacks.Register("Draw", updateEventHandler);
 
-local function versionwm()
-    local xax = 120
-    local rgb = getFadeRGB(line1:GetValue());
-    local scrx, scry = draw.GetScreenSize()
-    draw.Color( rgb[1], rgb[2], rgb[3], 200 )
-    draw.SetFont(font_spec)
-    draw.Text( xax, scry - 12, "Version: " .. VERSION_NUMBER)
-    
-end
+
+
+
 
 
 
@@ -483,10 +607,10 @@ callbacks.Register("Draw", function()
     end]]
     
     local spectators = getSpectators();
-    
-    
     openwindow();
-    versionwm();
+    nagyvonal();
+    crosshair();
+
     if enablespec:GetValue() then
         gui.SetValue( "msc_showspec", 0 )
       if hidespec:GetValue() then
@@ -553,19 +677,25 @@ timer.Create("Gay", 1, 2, function() Gay1() end)
 
 
 function Gay1()
-   
-timer.Create("Gay1", aaspeed:GetValue(), aaspeed:GetValue(), function()
+    if randomspeed:GetValue() then
+    aaspeed:SetValue(math.floor(math.sin((globals.RealTime()) * 2.3) * 1.5))
+    else
+
+end
+
+
+    timer.Create("Gay1", aaspeed:GetValue(), aaspeed:GetValue(), function()
     if aamode1:GetValue() == 0 then
     gui.SetValue( "rbot_antiaim_stand_desync", 2 )
-gui.SetValue( "rbot_antiaim_move_desync", 3 )
-Gay2()
+    gui.SetValue( "rbot_antiaim_move_desync", 3 )
+    Gay2()
     elseif aamode1:GetValue() == 1 then
         gui.SetValue( "rbot_antiaim_stand_desync", 1 )
     gui.SetValue( "rbot_antiaim_move_desync", 3 )
     Gay2()
-elseif aamode1:GetValue() == 2 then
+    elseif aamode1:GetValue() == 2 then
     gui.SetValue( "rbot_antiaim_stand_desync", 1 )
-gui.SetValue( "rbot_antiaim_move_desync", 3 )
+    gui.SetValue( "rbot_antiaim_move_desync", 3 )
     Gay2()
 end
 end)
@@ -573,7 +703,8 @@ end
 
 
 function Gay2()
-   
+
+ 
     timer.Create("Gay2", aaspeed:GetValue(), aaspeed:GetValue(), function()
         if aamode1:GetValue() == 0 then
         gui.SetValue( "rbot_antiaim_stand_desync", 3  )
@@ -589,6 +720,7 @@ gui.SetValue( "rbot_antiaim_move_desync", 2 )
             Gay1()
         end
     end)
+
 end
 
 --AA
@@ -777,24 +909,24 @@ local granades = {
 };
 
 local autoBuyGroup = gui.Groupbox(window, "Auto Buy", 10, 240, 235, 220);
-local enabled = gui.Checkbox(autoBuyGroup, "rab_autobuy_masterswitch", "Enabled Auto Buy", false);
-local printLogs = gui.Checkbox(autoBuyGroup, "rab_autobuy_printlogs", "Print Logs To Aimware Console", false);
-local concatCommand = gui.Checkbox(autoBuyGroup, "rab_autobuy_concat", "Concact Buy Command", false);
+local enabled = gui.Checkbox(autoBuyGroup, "zero_autobuy_masterswitch", "Enabled Auto Buy", false);
+local printLogs = gui.Checkbox(autoBuyGroup, "zero_autobuy_printlogs", "Print Logs To Aimware Console", false);
+local concatCommand = gui.Checkbox(autoBuyGroup, "zero_autobuy_concat", "Concact Buy Command", false);
 concatCommand:SetValue(true);
-local primaryWeaponSelection = gui.Combobox(autoBuyGroup, "rab_autobuy_primary_weapon", "Primary Weapon", primaryWeapons[1][1], primaryWeapons[2][1], primaryWeapons[3][1], primaryWeapons[4][1], primaryWeapons[5][1], primaryWeapons[6][1]);
-local secondaryWeaponSelection = gui.Combobox(autoBuyGroup, "rab_autobuy_secondary_weapon", "Secondary Weapon", secondaryWeapons[1][1], secondaryWeapons[2][1], secondaryWeapons[3][1], secondaryWeapons[4][1], secondaryWeapons[5][1]);
-local armorSelection = gui.Combobox(autoBuyGroup, "rab_autobuy_armor", "Armor", armors[1][1], armors[2][1], armors[3][1]);
+local primaryWeaponSelection = gui.Combobox(autoBuyGroup, "zero_autobuy_primary_weapon", "Primary Weapon", primaryWeapons[1][1], primaryWeapons[2][1], primaryWeapons[3][1], primaryWeapons[4][1], primaryWeapons[5][1], primaryWeapons[6][1]);
+local secondaryWeaponSelection = gui.Combobox(autoBuyGroup, "zero_autobuy_secondary_weapon", "Secondary Weapon", secondaryWeapons[1][1], secondaryWeapons[2][1], secondaryWeapons[3][1], secondaryWeapons[4][1], secondaryWeapons[5][1]);
+local armorSelection = gui.Combobox(autoBuyGroup, "zero_autobuy_armor", "Armor", armors[1][1], armors[2][1], armors[3][1]);
 armorSelection:SetValue(2);
-local granadeSlot1 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_1", "Grenade Slot #1", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+local granadeSlot1 = gui.Combobox(autoBuyGroup, "zero_autobuy_grenade_slot_1", "Grenade Slot #1", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
 granadeSlot1:SetValue(1);
-local granadeSlot2 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_2", "Grenade Slot #2", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+local granadeSlot2 = gui.Combobox(autoBuyGroup, "zero_autobuy_grenade_slot_2", "Grenade Slot #2", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
 granadeSlot2:SetValue(3);
-local granadeSlot3 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_3", "Grenade Slot #3", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+local granadeSlot3 = gui.Combobox(autoBuyGroup, "zero_autobuy_grenade_slot_3", "Grenade Slot #3", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
 granadeSlot3:SetValue(5);
-local granadeSlot4 = gui.Combobox(autoBuyGroup, "rab_autobuy_grenade_slot_4", "Grenade Slot #4", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
+local granadeSlot4 = gui.Combobox(autoBuyGroup, "zero_autobuy_grenade_slot_4", "Grenade Slot #4", granades[1][1], granades[2][1], granades[3][1], granades[4][1], granades[5][1], granades[6][1]);
 granadeSlot4:SetValue(2);
-local taser = gui.Checkbox(autoBuyGroup, "rab_autobuy_taser", "Buy Taser", false);
-local defuseKit = gui.Checkbox(autoBuyGroup, "rab_autobuy_defusekit", "Buy Defuse Kit", false);
+local taser = gui.Checkbox(autoBuyGroup, "zero_autobuy_taser", "Buy Taser", false);
+local defuseKit = gui.Checkbox(autoBuyGroup, "zero_autobuy_defusekit", "Buy Defuse Kit", false);
 
 local function getSingleTableItem(selection, table)
     return table[selection:GetValue() + 1][2];
@@ -866,4 +998,337 @@ client.AllowListener("player_spawn");
 
 
 
-local fourthgroup = gui.Groupbox(window, "Other", 255, 240, 235, 220);
+local c_reg = callbacks.Register 
+local b_toggle = input.IsButtonDown
+local abs_frame_time = globals.AbsoluteFrameTime;
+local draw_Line, draw_TextShadow, draw_Color, draw_Text, draw_FilledRect, client_WorldToScreen, draw_GetScreenSize, client_GetConVar, client_SetConVar, client_exec, PlayerNameByUserID, PlayerIndexByUserID, GetLocalPlayer, gui_SetValue, gui_GetValue, LocalPlayerIndex, c_AllowListener, cb_Register, g_tickcount, g_realtime, g_curtime, math_floor, math_sqrt, GetPlayerResources, entities_FindByClass, GetPlayerResources = draw.Line, draw.TextShadow, draw.Color, draw.Text, draw.FilledRect, client.WorldToScreen, draw.GetScreenSize, client.GetConVar, client.SetConVar, client.Command, client.GetPlayerNameByUserID, client.GetPlayerIndexByUserID, entities.GetLocalPlayer, gui.SetValue, gui.GetValue, client.GetLocalPlayerIndex, client.AllowListener, callbacks.Register, globals.TickCount, globals.RealTime, globals.CurTime, math.floor, math.sqrt, entities.GetPlayerResources, entities.FindByClass, entities.GetPlayerResources
+local local_ref = gui.Reference("VISUALS", "YOURSELF", "Filter", "Enable" );
+local boxcolor = gui.ColorEntry( "clr_box_esp", "Box Color", 255, 255, 255, 255 )
+local namecolor = gui.ColorEntry( "clr_name_esp", "Name Color", 255, 255, 255, 255 )
+local weaponcolor = gui.ColorEntry( "clr_weapon_esp", "Weapon Color", 255, 255, 255, 255 )
+local hitcolor = gui.ColorEntry( "clr_hit_esp", "Hit Color", 255, 0, 0, 125 )
+local esp_font = draw.CreateFont("Visitor TT2 -BRK-", 11, 6)
+local flag_font = draw.CreateFont("Visitor TT2 -BRK-", 9, 4)
+--local headshot_font = draw.CreateFont("Visitor TT2 -BRK-", 16, 100)
+local hit_font = draw.CreateFont("Visitor TT2 -BRK-", 16, 100)
+
+local kill_logs = {}
+
+
+
+
+function get_player_boundaries(player)
+    local min_x, min_y, min_z = player:GetMins()
+    local max_x, max_y, max_z = player:GetMaxs()
+ 
+    return {min_x, min_y, min_z}, {max_x, max_y, max_z}
+end
+ 
+function get_player_position(player)
+if (player ~= nil) then
+    local x1, y1, z1 = player:GetAbsOrigin()
+    return {x1, y1, z1}
+	end
+end
+ 
+function w2s(pos)
+    local x1, y1 = client.WorldToScreen(pos[1], pos[2], pos[3])
+    if x1 == nil or y == nil then
+        return nil
+    end
+    return {x1, y1}
+end
+
+function get_bounding_box(player)
+    local mins, maxs = get_player_boundaries(player)
+    local screen_pos, pos_3d, screen_top, top_3d
+ 
+    pos_3d = get_player_position(player)
+    pos_3d[3] = pos_3d[3] - 3
+ 
+    top_3d = get_player_position(player)
+	
+	local duck_amt = player:GetPropFloat("m_flDuckAmount")
+
+	local angels = player:GetPropFloat("m_angEyeAngles[0]")
+
+	top_3d[3] = top_3d[3] + 79 - 14 * duck_amt - angels / 89 * 3
+ 
+    screen_pos = w2s(pos_3d)
+    screen_top = w2s(top_3d)
+ 
+    if (screen_pos ~= nil and screen_top ~= nil) then
+        local height = screen_pos[2] - screen_top[2]
+ 
+        local width = height / 2.2
+ 
+        local left = screen_pos[1] - width / 2
+        local right = (screen_pos[1] - width / 2) + width
+        local top = screen_top[2] + width / 5
+        local bottom = screen_top[2] + height
+ 
+        local box = {left = left, right = right, top = top, bottom = bottom}
+ 		--CODED BY L3D451R7 POSHEL NAHUI NN
+        return box
+    end
+ 
+    return nil
+end
+
+function is_me(player)
+    return (player:GetIndex() == client.GetLocalPlayerIndex())
+end
+ 
+function is_enemy(player)
+    return (entities.GetLocalPlayer():GetTeamNumber() ~= player:GetTeamNumber())
+end
+
+function draw_text(text, pos, centered, shadow, font, color)
+    draw.Color(color[1], color[2], color[3], color[4])
+    draw.SetFont(font)
+
+    if pos ~= nil then
+
+    local _x, _y = pos[1], pos[2]
+    if (centered) then
+        local w1, h1 = draw.GetTextSize(text)
+        _x = _x - w1 / 2
+    end
+    if (shadow) then
+        draw.TextShadow(_x, _y, text)
+    else--CODED BY L3D451R7 POSHEL NAHUI NN
+        draw.Text(_x, _y, text)
+    end
+end
+end
+
+function rect_outline(pos1, pos2, color, outline_color)
+    draw.Color(color[1], color[2], color[3], color[4])
+    draw.OutlinedRect(pos1[1], pos1[2], pos2[1], pos2[2])
+ 
+    draw.Color(outline_color[1], outline_color[2], outline_color[3], outline_color[4])
+    draw.OutlinedRect(pos1[1] - 1, pos1[2] - 1, pos2[1] + 1, pos2[2] + 1)
+    draw.OutlinedRect(pos1[1] + 1, pos1[2] + 1, pos2[1] - 1, pos2[2] - 1)
+end
+ 
+function rect_fill(pos1, pos2, color)
+    draw.Color(color[1], color[2], color[3], color[4])
+    draw.FilledRect(pos1[1], pos1[2], pos2[1], pos2[2])
+end
+ 
+function get_text_size(text, font)
+    draw.SetFont(font)
+    local w1, h1 = draw.GetTextSize(text)
+    return {w1, h1}
+end
+ 
+function get_screen_size()
+    local w1, h1 = draw.GetScreenSize()
+    return {w1, h1}
+end
+ 
+function draw_line(pos1, pos2, color)
+    draw.Color(color[1], color[2], color[3], color[4])
+    draw.Line(pos1[1], pos1[2], pos2[1], pos2[2])
+end
+
+local function KuSloEb_DrAwInG(e)
+    w1, h1 = draw.GetScreenSize()
+    w1 = w1/2
+    h1 = h1/2 + 10
+--CODED BY L3D451R7 POSHEL NAHUI NN
+    local local_player = entities.GetLocalPlayer()
+    local screen_size = get_screen_size()
+ 
+    if (local_player ~= nil) then
+        -- esp
+        local players = entities.FindByClass("CCSPlayer")
+        for i = 1, #players do
+            local player = players[i]
+            if (is_enemy(player) and player:IsAlive() or is_me(player) and player:IsAlive() and local_ref:GetValue() ~= false) then
+                -- get bounding box
+                local aye = 0
+                local bbox = get_bounding_box(player)
+                if (bbox ~= nil) then
+                    -- box
+					if box_esp:GetValue() ~= false then
+                        rect_outline({bbox.left, bbox.top}, {bbox.right, bbox.bottom}, {boxcolor:GetValue()}, {0, 0, 0, 200})
+                        gui.SetValue( "esp_enemy_box", 0 )
+					end
+                    -- health
+                    if healthbar:GetValue() ~= false then
+                    gui.SetValue( "esp_enemy_health", 0 )
+                    rect_fill({bbox.left - 6, bbox.top - 1}, {bbox.left - 2, bbox.bottom + 1}, {0, 0, 0, 130})
+                    local hp = math.min(player:GetHealth(), 100)
+                    local height = bbox.bottom - bbox.top - 1
+                    local healthbar_height = (hp / 100) * height
+
+					local hp_percent = h1 - ((h1 * hp) / 100);
+
+					local width = (w1 * (hp / 100.0));
+
+					local red = 255 - (hp*2.55);
+					local green = hp * 2.55;
+
+                    rect_fill(
+                        {bbox.left - 5, bbox.bottom - healthbar_height - 1},
+                        {bbox.left - 3, bbox.bottom},
+                        {red, green, 0, 200}
+                    )
+                    if (hp < 95) then
+                    	draw_text(
+                        	hp,
+                        	{bbox.left - 4, bbox.bottom - healthbar_height - 6},
+                        	true,
+                        	true,
+                        	flags_font,
+                        	{255, 255, 255, 200})
+                	end
+					end
+                    -- name
+                    local name = player:GetName()
+                    if name_esp:GetValue() ~= false then
+                    gui.SetValue( "esp_enemy_name", 0 )
+                    draw_text(
+                        name,
+                        {bbox.left + (bbox.right - bbox.left) / 2, bbox.top - 13},
+                        true,
+                        true,
+                        esp_font,
+                        {namecolor:GetValue()}
+                    )
+					end
+					--CODED BY L3D451R7 POSHEL NAHUI NN
+                    if info_esp:GetValue() ~= false then
+                    gui.SetValue( "esp_enemy_hasc4", 0 )
+                    gui.SetValue( "esp_enemy_hasdefuser", 0 )
+                    gui.SetValue( "esp_enemy_defusing", 0 )
+                    gui.SetValue( "esp_enemy_flashed", 0 )
+                    gui.SetValue( "esp_enemy_scoped", 0 )
+                    gui.SetValue( "esp_enemy_reloading", 0 )
+                    local flags = ""
+
+ 					local latency = math.min(entities.GetPlayerResources():GetPropInt("m_iPing", player:GetIndex()), 1000)
+
+					local red_l = latency*0.255;
+					local green_l = 255 - latency * 0.255;
+
+ 					if (player:GetPropInt("m_bIsScoped") == 1) then
+                        draw_text("ZOOM", {bbox.right + 2, bbox.top - 2 + aye * 9}, false, true, flag_font, {0, 185, 255, 200})
+                        aye = aye + 1
+                     elseif (player:GetPropInt("m_bIsScoped") == 0) then
+                     
+                    end
+
+                    if (latency > 70) then
+                        draw_text(latency, {bbox.right + 2, bbox.top - 2 + aye * 9}, false, true, flag_font, {red_l, green_l, 0, 200})
+                        aye = aye + 1
+                    end
+
+                    if (player:GetPropInt("m_bHasHelmet") == 1) then
+                        flags = flags .. "H"
+                    end
+ 
+                    if (player:GetPropInt("m_ArmorValue") ~= 0) then
+                        flags = flags .. "K"
+                    end
+ 
+                    if (flags ~= "") then
+                        draw_text(flags, {bbox.right + 2, bbox.top - 2 + aye * 9}, false, true, flag_font, {info, 200})
+                        aye = aye + 1
+                    end
+					end
+                    -- weapon
+                    local weapon = player:GetPropEntity("m_hActiveWeapon")
+                    if (weapon ~= nil and weapon_esp:GetValue() ~= false) then
+                        gui.SetValue( "esp_enemy_weapon", 0 )
+                        local weapon_name = weapon:GetClass()
+                        weapon_name = weapon_name:gsub("CWeapon", "")
+                        weapon_name = weapon_name:gsub("CKnife", "knife")
+                        weapon_name = weapon_name:lower()
+ 
+                        if (weapon_name:sub(1, 1) == "c") then
+                            weapon_name = weapon_name:sub(2)--CODED BY L3D451R7 POSHEL NAHUI NN
+                        end
+ 
+                        draw_text(
+                            weapon_name,
+                            {bbox.left + (bbox.right - bbox.left) / 2, bbox.bottom + 1},
+                            true,
+                            true,
+                            esp_font,
+                            {weaponcolor:GetValue()}
+                        )
+                    end
+                end
+            end
+        end
+    end
+
+    if hit_log:GetValue() == true then
+        step = 255 / 0.3 * globals.FrameTime()
+        gui.SetValue( "esp_enemy_damage", 0 )
+		for index = 1, 10, 1 do
+
+			local data = kill_logs[index]
+
+			if data ~= nil then
+				local alpha = 0
+
+				if data.time > globals.RealTime() then alpha = 255 else
+		       		alpha = alpha - (255 / 0.3 * globals.FrameTime())
+		    	end
+
+			    if alpha > 0 and data.position ~= nil then
+
+                    data.position[3] = data.position[3] + 0.15
+                    --alpha = alpha - (255 / 0.3 * globals.FrameTime())
+			    	local lul = data.position[3] + 75
+
+			    	local pos_2d = w2s({data.position[1], data.position[2], lul})
+			    	--CODED BY L3D451R7 POSHEL NAHUI NN
+			    	draw_text(data.text,pos_2d,true,true,hit_font,{hitcolor:GetValue()})
+		    	end
+		    end
+		end
+	end
+end
+
+local function KuSloEb_GaMeEvEnT( event , e)
+    
+	local local_player = client.GetLocalPlayerIndex()
+
+	if event:GetName() == "player_hurt" then
+		local userid = client.GetPlayerIndexByUserID(event:GetInt("userid"))
+        local attacker = client.GetPlayerIndexByUserID(event:GetInt("attacker"))
+        local hitgroup = event:GetInt("hitgroup")
+        local damageDone = event:GetInt("dmg_health")
+        
+        if attacker == local_player and userid ~= local_player then
+
+        	for i = 10, 2, -1 do 
+            	kill_logs[i] = kill_logs[i-1]
+        	end
+
+        	local text = damageDone
+
+        	if hitgroup == 1 then
+        		text = damageDone
+        	end
+
+
+        	kill_logs[1] =
+        	{ 
+            ["position"] = get_player_position(entities.GetByIndex(userid)), 
+            ["time"] = globals.RealTime() + 2,
+          	["text"] = text
+        	}
+        end
+	end
+end
+
+c_reg( "Draw", KuSloEb_DrAwInG)
+c_reg( "FireGameEvent", KuSloEb_GaMeEvEnT)
+client.AllowListener("player_hurt")
+print("Visuals For KuCJIoTa1337 // by L3D451R7")
+--CODED BY L3D451R7 POSHEL NAHUI NN
