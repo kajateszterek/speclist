@@ -2,7 +2,7 @@
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "2.0.1"; --- This too
+local VERSION_NUMBER = "2.1"; --- This too
 local datumakurvaanyad = "06. 12. 2019."
 local divider = " | "
 
@@ -69,10 +69,12 @@ local name_esp = gui.Checkbox(grp5, "vis_kislo_esp_name", "Name ESP", 1)
 local info_esp = gui.Checkbox(grp5, "vis_kislo_esp_info", "Info ESP", 1)
 local weapon_esp = gui.Checkbox(grp5, "vis_kislo_esp_weapon", "Weapon ESP", 1)
 local hit_log = gui.Checkbox(grp5, "vis_kislo_hit_log", "Damage Marker", 1)
-local cross = gui.Checkbox( grp5, "crosshair", "Crosshair Dot", 0)
 
 ------------------------------
 local grp6 = gui.Groupbox(window, "Misc Visuals", 745,10,235,450)
+local ComboCrosshair = gui.Combobox(grp6, "vis_sniper_crosshair", "Sniper Crosshair", "Off", "Engine Crosshair", "Engine Crosshair (+scoped)", "Aimware Crosshair", "Draw Crosshair")
+local cross = gui.Checkbox(grp6, "crosshair", "Crosshair Dot", 0)
+local hitmarker = gui.Checkbox(grp6,"Hitmarker", "Hitmarker", 0 )
 ------------------------------
 --colors
 local specszin = gui.ColorEntry( "dxhooker", "Spectators' name color ", 150, 200, 50, 255 )
@@ -1331,3 +1333,136 @@ c_reg( "FireGameEvent", KuSloEb_GaMeEvEnT)
 client.AllowListener("player_hurt")
 print("Visuals For KuCJIoTa1337 // by L3D451R7")
 --CODED BY L3D451R7 POSHEL NAHUI NN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function ifCrosshair()
+    if GetLocalPlayer() == nil then return; end
+    local Weapon = GetLocalPlayer():GetPropEntity("m_hActiveWeapon");
+    local Scoped = GetLocalPlayer():GetProp("m_bIsScoped") == 1 or GetLocalPlayer():GetProp("m_bIsScoped") == 257
+    if Weapon == nil then return; end
+    local cWep = Weapon:GetClass();
+    if cWep == "CWeaponAWP" or cWep == "CWeaponSSG08" or cWep == "CWeaponSCAR20" or cWep == "CWeaponG3SG1" then drawCrosshair = true; 
+    else drawCrosshair = false; end 
+    local screenCenterX, screenY = draw_GetScreenSize(); local scX, scY = screenCenterX / 2, screenY / 2;
+    if drawCrosshair == true and ComboCrosshair:GetValue() == 0 then client_SetConVar("weapon_debug_spread_show", 0, true)
+    elseif drawCrosshair == true and ComboCrosshair:GetValue() == 1 then gui_SetValue('esp_crosshair', false); if Scoped then client_SetConVar("weapon_debug_spread_show", 0, true); else client_SetConVar("weapon_debug_spread_show", 3, true) end
+    elseif drawCrosshair == true and ComboCrosshair:GetValue() == 2 then gui_SetValue('esp_crosshair', false); client_SetConVar("weapon_debug_spread_show", 3, true)
+    elseif drawCrosshair == true and ComboCrosshair:GetValue() == 3 then if Scoped then gui_SetValue('esp_crosshair', false); else client_SetConVar("weapon_debug_spread_show", 0, true); gui_SetValue('esp_crosshair', true); end 
+    elseif drawCrosshair == false and ComboCrosshair:GetValue() == 3 then gui_SetValue('esp_crosshair', false)
+    elseif drawCrosshair == true and ComboCrosshair:GetValue() == 4 then client_SetConVar("weapon_debug_spread_show", 0, true); gui_SetValue('esp_crosshair', false); draw.SetFont(font);
+    draw.Color(255,255,255,255); draw.Line(scX, scY - 8, scX, scY + 8); --[[ line down ]] draw.Line(scX - 8, scY, scX + 8, scY); --[[ line across ]] end end
+    callbacks.Register("Draw", "sniper crosshairs", ifCrosshair);
+    
+
+
+
+
+
+
+
+
+function Sounds( Event, Entity )
+    if hitmarker:GetValue() then
+if ( Event:GetName() == 'player_hurt' ) then
+
+    local HITGROUP = Event:GetInt("hitgroup");
+    local ENTITY_LOCAL_PLAYER = client.GetLocalPlayerIndex();
+
+    local INT_UID = Event:GetInt( 'userid' );
+    local INT_ATTACKER = Event:GetInt( 'attacker' );
+
+    local NAME_Victim = client.GetPlayerNameByUserID( INT_UID );
+    local INDEX_Victim = client.GetPlayerIndexByUserID( INT_UID );
+
+    local NAME_Attacker = client.GetPlayerNameByUserID( INT_ATTACKER );
+    local INDEX_Attacker = client.GetPlayerIndexByUserID( INT_ATTACKER );
+
+    if (INDEX_Attacker == ENTITY_LOCAL_PLAYER and HITGROUP == 1) then
+        client.Command("play rust_hs.wav", true);
+    end
+
+    if (INDEX_Attacker == ENTITY_LOCAL_PLAYER and HITGROUP ~= 1) then
+        client.Command("play buttons/arena_switch_press_02.wav", true);
+    end
+
+end
+else
+
+end
+
+end
+
+alpha = 0
+
+
+function hittermark() 
+    if hitmarker:GetValue() then
+local screencenterX, screencenterY = draw.GetScreenSize() --getting the full screensize
+screencenterX = screencenterX / 2; screencenterY = screencenterY / 2 --dividing the screensize by 2 will place it perfectly in the center no matter what resolution
+draw.Color( 255, 0, 0, alpha)
+
+draw.Line(screencenterX - 4, screencenterY + 4, screencenterX - 2, screencenterY + 2)
+draw.Line(screencenterX - 4, screencenterY - 4, screencenterX - 2, screencenterY - 2)
+draw.Line(screencenterX + 4, screencenterY + 4, screencenterX + 2, screencenterY + 2)
+draw.Line(screencenterX + 4, screencenterY - 4, screencenterX + 2, screencenterY - 2)
+draw.Line(screencenterX - 5, screencenterY + 5, screencenterX - 2, screencenterY + 2)
+draw.Line(screencenterX - 5, screencenterY - 5, screencenterX - 2, screencenterY - 2)
+draw.Line(screencenterX + 5, screencenterY + 5, screencenterX + 2, screencenterY + 2)
+draw.Line(screencenterX + 5, screencenterY - 5, screencenterX + 2, screencenterY - 2)
+draw.Line(screencenterX - 6, screencenterY + 6, screencenterX - 2, screencenterY + 2)
+draw.Line(screencenterX - 6, screencenterY - 6, screencenterX - 2, screencenterY - 2)
+draw.Line(screencenterX + 6, screencenterY + 6, screencenterX + 2, screencenterY + 2)
+draw.Line(screencenterX + 6, screencenterY - 6, screencenterX + 2, screencenterY - 2)
+draw.Line(screencenterX - 7, screencenterY + 7, screencenterX - 2, screencenterY + 2)
+draw.Line(screencenterX - 7, screencenterY - 7, screencenterX - 2, screencenterY - 2)
+draw.Line(screencenterX + 7, screencenterY + 7, screencenterX + 2, screencenterY + 2)
+draw.Line(screencenterX + 7, screencenterY - 7, screencenterX + 2, screencenterY - 2)
+draw.Line(screencenterX - 8, screencenterY + 8, screencenterX - 2, screencenterY + 2)
+draw.Line(screencenterX - 8, screencenterY - 8, screencenterX - 2, screencenterY - 2)
+draw.Line(screencenterX + 8, screencenterY + 8, screencenterX + 2, screencenterY + 2)
+draw.Line(screencenterX + 8, screencenterY - 8, screencenterX + 2, screencenterY - 2)
+
+if(alpha > 0) then
+    alpha = alpha - 1.5
+    end
+
+else
+end
+end
+
+
+function enemyhit(event)
+    if hitmarker:GetValue() then
+    if(event:GetName() == "player_hurt") then --if the game event "player_hurt" gets called then
+        local attacker = event:GetInt("attacker") --getting the attacker 
+        local attackerindex = client.GetPlayerIndexByUserID(attacker) --retrieves the attackers entity index by using the GetPlayerIndexByUserID function aimwares api provides us
+        if(attackerindex == client.GetLocalPlayerIndex()) then --if the attackers index for the player who got hurt matches the localplayer index, it means we're the attacker
+        alpha = 255
+        end
+    end
+else
+end
+end
+
+callbacks.Register( "FireGameEvent", "enemyhitfunction", enemyhit)
+callbacks.Register( "Draw", "hittermark", hittermark)
+callbacks.Register( 'FireGameEvent', 'Hitsound', Sounds );
