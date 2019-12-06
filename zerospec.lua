@@ -2,8 +2,8 @@
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "2.1"; --- This too
-local datumakurvaanyad = "06. 12. 2019."
+local VERSION_NUMBER = "2.2"; --- This too
+local datumakurvaanyad = "07. 12. 2019."
 local divider = " | "
 
 local version_check_done = false;
@@ -63,12 +63,12 @@ local jumpscoutFix = gui.Checkbox(fourthgroup, "jumpscoutfix", "Disable Auto-Str
 
 --------------------------
 local grp5 = gui.Groupbox(window, "Player Visuals", 500,10,235,450)
-local box_esp = gui.Checkbox(grp5, "vis_kislo_esp_box", "Box ESP", 1)
-local healthbar = gui.Checkbox(grp5, "vis_kislo_esp_hbar", "Health Bar ESP", 1)
-local name_esp = gui.Checkbox(grp5, "vis_kislo_esp_name", "Name ESP", 1)
-local info_esp = gui.Checkbox(grp5, "vis_kislo_esp_info", "Info ESP", 1)
-local weapon_esp = gui.Checkbox(grp5, "vis_kislo_esp_weapon", "Weapon ESP", 1)
-local hit_log = gui.Checkbox(grp5, "vis_kislo_hit_log", "Damage Marker", 1)
+local box_esp = gui.Checkbox(grp5, "vis_box", "Box ESP", 1)
+local healthbar = gui.Checkbox(grp5, "vis_hbar", "Health Bar ESP", 1)
+local name_esp = gui.Checkbox(grp5, "vis_name", "Name ESP", 1)
+local info_esp = gui.Checkbox(grp5, "vis_info", "Info ESP", 1)
+local weapon_esp = gui.Checkbox(grp5, "vis_weapon", "Weapon ESP", 1)
+local hit_log = gui.Checkbox(grp5, "vis_dmgmarker", "Damage Marker", 1)
 
 ------------------------------
 local grp6 = gui.Groupbox(window, "Misc Visuals", 745,10,235,450)
@@ -1007,7 +1007,7 @@ local local_ref = gui.Reference("VISUALS", "YOURSELF", "Filter", "Enable" );
 local boxcolor = gui.ColorEntry( "clr_box_esp", "Box Color", 255, 255, 255, 255 )
 local namecolor = gui.ColorEntry( "clr_name_esp", "Name Color", 255, 255, 255, 255 )
 local weaponcolor = gui.ColorEntry( "clr_weapon_esp", "Weapon Color", 255, 255, 255, 255 )
-local hitcolor = gui.ColorEntry( "clr_hit_esp", "Hit Color", 255, 0, 0, 125 )
+local hitcolor = gui.ColorEntry( "clr_dmg_esp", "Damage Color", 255, 0, 0, 125 )
 local esp_font = draw.CreateFont("Visitor TT2 -BRK-", 11, 6)
 local flag_font = draw.CreateFont("Visitor TT2 -BRK-", 9, 4)
 --local headshot_font = draw.CreateFont("Visitor TT2 -BRK-", 16, 100)
@@ -1411,6 +1411,13 @@ end
 
 end
 
+
+
+local hmred = gui.Slider(grp6, "hmred", "Hitmarker red", 255, 0, 255 )
+local hmgreen = gui.Slider(grp6, "hmgreen", "Hitmarker green", 0, 0, 255 )
+local hmblue = gui.Slider(grp6, "hmblue", "Hitmarker blue", 0, 0, 255 )
+
+
 alpha = 0
 
 
@@ -1418,28 +1425,28 @@ function hittermark()
     if hitmarker:GetValue() then
 local screencenterX, screencenterY = draw.GetScreenSize() --getting the full screensize
 screencenterX = screencenterX / 2; screencenterY = screencenterY / 2 --dividing the screensize by 2 will place it perfectly in the center no matter what resolution
-draw.Color( 255, 0, 0, alpha)
+draw.Color( hmred:GetValue(),hmgreen:GetValue(),hmblue:GetValue(), alpha)
 
-draw.Line(screencenterX - 4, screencenterY + 4, screencenterX - 2, screencenterY + 2)
-draw.Line(screencenterX - 4, screencenterY - 4, screencenterX - 2, screencenterY - 2)
-draw.Line(screencenterX + 4, screencenterY + 4, screencenterX + 2, screencenterY + 2)
-draw.Line(screencenterX + 4, screencenterY - 4, screencenterX + 2, screencenterY - 2)
-draw.Line(screencenterX - 5, screencenterY + 5, screencenterX - 2, screencenterY + 2)
-draw.Line(screencenterX - 5, screencenterY - 5, screencenterX - 2, screencenterY - 2)
-draw.Line(screencenterX + 5, screencenterY + 5, screencenterX + 2, screencenterY + 2)
-draw.Line(screencenterX + 5, screencenterY - 5, screencenterX + 2, screencenterY - 2)
-draw.Line(screencenterX - 6, screencenterY + 6, screencenterX - 2, screencenterY + 2)
-draw.Line(screencenterX - 6, screencenterY - 6, screencenterX - 2, screencenterY - 2)
-draw.Line(screencenterX + 6, screencenterY + 6, screencenterX + 2, screencenterY + 2)
-draw.Line(screencenterX + 6, screencenterY - 6, screencenterX + 2, screencenterY - 2)
-draw.Line(screencenterX - 7, screencenterY + 7, screencenterX - 2, screencenterY + 2)
-draw.Line(screencenterX - 7, screencenterY - 7, screencenterX - 2, screencenterY - 2)
-draw.Line(screencenterX + 7, screencenterY + 7, screencenterX + 2, screencenterY + 2)
-draw.Line(screencenterX + 7, screencenterY - 7, screencenterX + 2, screencenterY - 2)
-draw.Line(screencenterX - 8, screencenterY + 8, screencenterX - 2, screencenterY + 2)
-draw.Line(screencenterX - 8, screencenterY - 8, screencenterX - 2, screencenterY - 2)
-draw.Line(screencenterX + 8, screencenterY + 8, screencenterX + 2, screencenterY + 2)
-draw.Line(screencenterX + 8, screencenterY - 8, screencenterX + 2, screencenterY - 2)
+draw.Line(screencenterX - 7, screencenterY + 7, screencenterX - 3, screencenterY + 3)
+draw.Line(screencenterX - 7, screencenterY - 7, screencenterX - 3, screencenterY - 3)
+draw.Line(screencenterX + 7, screencenterY + 7, screencenterX + 3, screencenterY + 3)
+draw.Line(screencenterX + 7, screencenterY - 7, screencenterX + 3, screencenterY - 3)
+draw.Line(screencenterX - 8, screencenterY + 8, screencenterX - 3, screencenterY + 3)
+draw.Line(screencenterX - 8, screencenterY - 8, screencenterX - 3, screencenterY - 3)
+draw.Line(screencenterX + 8, screencenterY + 8, screencenterX + 3, screencenterY + 3)
+draw.Line(screencenterX + 8, screencenterY - 8, screencenterX + 3, screencenterY - 3)
+draw.Line(screencenterX - 9, screencenterY + 9, screencenterX - 3, screencenterY + 3)
+draw.Line(screencenterX - 9, screencenterY - 9, screencenterX - 3, screencenterY - 3)
+draw.Line(screencenterX + 9, screencenterY + 9, screencenterX + 3, screencenterY + 3)
+draw.Line(screencenterX + 9, screencenterY - 9, screencenterX + 3, screencenterY - 3)
+draw.Line(screencenterX - 8, screencenterY + 8, screencenterX - 3, screencenterY + 3)
+draw.Line(screencenterX - 8, screencenterY - 8, screencenterX - 3, screencenterY - 3)
+draw.Line(screencenterX + 8, screencenterY + 8, screencenterX + 3, screencenterY + 3)
+draw.Line(screencenterX + 8, screencenterY - 8, screencenterX + 3, screencenterY - 3)
+draw.Line(screencenterX - 10, screencenterY + 10, screencenterX - 3, screencenterY + 3)
+draw.Line(screencenterX - 10, screencenterY - 10, screencenterX - 3, screencenterY - 3)
+draw.Line(screencenterX + 10, screencenterY + 10, screencenterX + 3, screencenterY + 3)
+draw.Line(screencenterX + 10, screencenterY - 10, screencenterX + 3, screencenterY - 3)
 
 if(alpha > 0) then
     alpha = alpha - 1.5
