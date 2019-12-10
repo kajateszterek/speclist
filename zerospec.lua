@@ -1,9 +1,9 @@
 
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
-local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "2.2"; --- This too
-local datumakurvaanyad = "07. 12. 2019."
+local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; 
+local VERSION_NUMBER = "3.0"; --- This too
+local datumakurvaanyad = "10. 12. 2019."
 local divider = " | "
 
 local version_check_done = false;
@@ -21,9 +21,11 @@ local font_dot = draw.CreateFont("Tahoma", 22, 1000);
 local topbarSize = 25;
 local windowmade = 0
 local windowactive = 0
+local perspectiveref = gui.Reference("SETTINGS", "Miscellaneous")
+local perspective_en = gui.Checkbox(perspectiveref, "show_perspective", "Perspective Menu", false);
 local window = gui.Window(window, "Perspective.LUA", 250, 250, 990, 560)
 local grpinfo = gui.Groupbox( window, "Client Info", 10, 470, 480, 50)
-local updateinfo = gui.Text(grpinfo, "Your Client is up to date!")
+local updateinfo = gui.Text(grpinfo, "Perspective is up to date!")
 --------------------------------------
 local grpinfo2 = gui.Groupbox( window, "Version Info", 500, 470, 480, 50)
 local build_date = gui.Text(grpinfo2, "Version: " .. VERSION_NUMBER .. divider .. "Build Date: " .. datumakurvaanyad )
@@ -47,9 +49,9 @@ local thiccness = gui.Slider( grp1, "haligvastag", "Line Width", 2.5, 1, 5)
 --group1 end
 --group2
 local grp2 = gui.Groupbox(window, "Anti-Aim", 255,10,235,220)
-local aamode1 = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Swing", "Jitter", "Offset" )
+local aamode1 = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Off", "Swing", "Jitter", "Offset" )
 local randomspeed = gui.Checkbox( grp2, "random_speed", "Randomize Speed", 0)
-local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 1 )
+local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 2 )
 --[[local aamode = gui.Combobox( grp2, "aamode", "Anti-Aim Mode", "Offset", "Jitter", "Swing" )]]
 --group2 end
 
@@ -59,29 +61,40 @@ local aaspeed = gui.Slider( grp2, "aaspeed", "Anti-Aim Speed", 0.27, 0.1, 1 )
 
 local fourthgroup = gui.Groupbox(window, "Other", 255, 240, 235, 220);
 
-local jumpscoutFix = gui.Checkbox(fourthgroup, "jumpscoutfix", "Disable Auto-Strafer when standing", 0)
+local jompscoot = gui.Checkbox(fourthgroup, "jumpscoutfix", "Disable Auto-Strafer when standing", 0)
 
 --------------------------
 local grp5 = gui.Groupbox(window, "Player Visuals", 500,10,235,450)
-local box_esp = gui.Checkbox(grp5, "vis_box", "Box ESP", 1)
-local healthbar = gui.Checkbox(grp5, "vis_hbar", "Health Bar ESP", 1)
-local name_esp = gui.Checkbox(grp5, "vis_name", "Name ESP", 1)
-local info_esp = gui.Checkbox(grp5, "vis_info", "Info ESP", 1)
-local weapon_esp = gui.Checkbox(grp5, "vis_weapon", "Weapon ESP", 1)
+local box_esp = gui.Checkbox(grp5, "vis_box", "Box", 1)
+local healthbar = gui.Checkbox(grp5, "vis_hbar", "Health Bar", 1)
+local name_esp = gui.Checkbox(grp5, "vis_name", "Name", 1)
+local info_esp = gui.Checkbox(grp5, "vis_info", "Info", 1)
+local weapon_esp = gui.Checkbox(grp5, "vis_weapon", "Weapon", 1)
 local hit_log = gui.Checkbox(grp5, "vis_dmgmarker", "Damage Marker", 1)
 
 ------------------------------
 local grp6 = gui.Groupbox(window, "Misc Visuals", 745,10,235,450)
 local ComboCrosshair = gui.Combobox(grp6, "vis_sniper_crosshair", "Sniper Crosshair", "Off", "Engine Crosshair", "Engine Crosshair (+scoped)", "Aimware Crosshair", "Draw Crosshair")
 local cross = gui.Checkbox(grp6, "crosshair", "Crosshair Dot", 0)
+local x88 = gui.Checkbox(grp6, "x88", "x88cheats UI", 0 )
+local x88posx = gui.Slider(grp6, "x88posx", "x88cheats X axis", 800, 800, 3000)
+local impactmulti = gui.Multibox(grp6, 'Circle Bullet Impacts')
+local BulletImpacts_Local = gui.Checkbox(impactmulti, "localimpact", "Local", false)
+local BulletImpacts_Enemy = gui.Checkbox(impactmulti, "enemyimpact", "Enemy", false)
+local BulletImpacts_Team = gui.Checkbox(impactmulti, "teamimpact", "Team", false)
+local BulletImpacts_color_Local = gui.ColorEntry('clr_localimpact', 'Local Bullet Impacts', 255,255,255,255)
+local BulletImpacts_color_Enemy = gui.ColorEntry('clr_enemyimpact', 'Enemy Bullet Impacts', 255,140,140,255)
+local BulletImpacts_color_Team = gui.ColorEntry('clr_teamimpact', 'Team Bullet Impacts', 140,140,255,255)
+local BulletImpacts_Time = gui.Slider(grp6, 'vis_bullet_impact_time', 'Bullet Impact Time', 4, 0, 10)
 local hitmarker = gui.Checkbox(grp6,"Hitmarker", "Hitmarker", 0 )
+
 ------------------------------
 --colors
-local specszin = gui.ColorEntry( "dxhooker", "Spectators' name color ", 150, 200, 50, 255 )
-local fejszin = gui.ColorEntry( "dxhooker", "Spectator list Header text color ", 150, 150, 150, 255 )
-local outlinecol = gui.ColorEntry( "outlinecol", "Outline Color", 0, 0, 0, 255 )
-local innneroutlinecol = gui.ColorEntry( "innneroutlinecol", "Inner Otline Color", 40, 40, 40, 255 )
-local innercol = gui.ColorEntry( "innercol", "Inner Color", 0, 0, 0, 255)
+local specszin = gui.ColorEntry( "dxhooker", "{Perspective}Spectators' name color ", 150, 200, 50, 255 )
+local fejszin = gui.ColorEntry( "dxhooker", "{Perspective}Spectator list Header text color ", 150, 150, 150, 255 )
+local outlinecol = gui.ColorEntry( "outlinecol", "{Perspective}Outline Color", 0, 0, 0, 255 )
+local innneroutlinecol = gui.ColorEntry( "innneroutlinecol", "{Perspective}Inner Otline Color", 40, 40, 40, 255 )
+local innercol = gui.ColorEntry( "innercol", "{Perspective}Inner Color", 0, 0, 0, 255)
 --colors end
 
 
@@ -133,20 +146,21 @@ local function crosshair()
 end
 
 
-
 local function velocityStuff()
-
-    if not pLocal then
+    local switch = false;
+    local del = globals.CurTime() + 0.100
+    local lp = entities.GetLocalPlayer();
+    if not lp then
         return
     end
 
-    local vel = math.sqrt(pLocal:GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + pLocal:GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
+    local vel = math.sqrt(lp:GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + lp:GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
 
-    if jumpscoutFix:GetValue() then
+    if jompscoot:GetValue() then
         if vel > 5 then
-            gui.SetValue("msc_autostrafer_airstrafe", 1)
+            gui.SetValue("msc_autostrafer_enable", 1)
         else
-            gui.SetValue("msc_autostrafer_airstrafe", 0)
+            gui.SetValue("msc_autostrafer_enable", 0)
         end
     end
 
@@ -160,6 +174,8 @@ local function velocityStuff()
     end
 
 end
+
+
 
 
 
@@ -239,9 +255,9 @@ local function drawOutline(r, g, b, a, x, y, w, h, howMany)
 end
 
 function getFadeRGB(speed)
-    local r = math.floor(math.sin(globals.RealTime() * speed) * 127 + 128)
-    local g = math.floor(math.sin(globals.RealTime() * speed + 2) * 127 + 128)
-    local b = math.floor(math.sin(globals.RealTime() * speed + 4) * 127 + 128)
+    local r = math.floor(math.sin(globals.RealTime() * speed) * 110 + 145)
+    local g = math.floor(math.sin(globals.RealTime() * speed + 2) * 110 + 145)
+    local b = math.floor(math.sin(globals.RealTime() * speed + 4) * 110 + 145)
     return {r, g, b};
 end
 
@@ -266,6 +282,13 @@ local function openwindow()
 	elseif not gui.Reference("MENU"):IsActive() and windowactive == 1 then
 		window:SetActive(0)
 	    windowactive = 0
+    end
+    if perspective_en:GetValue() and gui.Reference("MENU"):IsActive() then
+        window:SetActive(1)
+        windowactive = 1
+    else
+        window:SetActive(0)
+        windowactive = 0
     end
 end
 
@@ -600,7 +623,7 @@ callbacks.Register("Draw", updateEventHandler);
 
 
 callbacks.Register("Draw", function()
-
+    
 
 	 local lp = entities.GetLocalPlayer();
     --[[if lp == nil then
@@ -608,6 +631,7 @@ callbacks.Register("Draw", function()
     end]]
     
     local spectators = getSpectators();
+    velocityStuff();
     openwindow();
     nagyvonal();
     crosshair();
@@ -678,23 +702,32 @@ timer.Create("Gay", 1, 2, function() Gay1() end)
 
 
 function Gay1()
+    oldyaw3 = 0
+    oldyaw4 = 0
+    oldyaw3 = gui.GetValue("rbot_antiaim_stand_desync")
+    oldyaw4 = gui.GetValue("rbot_antiaim_move_desync")
     if randomspeed:GetValue() then
-    aaspeed:SetValue(math.floor(math.sin((globals.RealTime()) * 2.3) * 1.5))
+    --aaspeed:SetValue(math.floor(math.sin((globals.RealTime()) * 2) * 1.45 + 1.55));
+    aaspeed:SetValue(math.floor(math.sin((globals.RealTime() / 10) * 40) * 4) / 6)
     else
 
 end
 
 
     timer.Create("Gay1", aaspeed:GetValue(), aaspeed:GetValue(), function()
-    if aamode1:GetValue() == 0 then
+        if aamode1:GetValue() == 0 then
+            gui.SetValue( "rbot_antiaim_stand_desync", oldyaw3 )
+            gui.SetValue( "rbot_antiaim_move_desync", oldyaw4 )
+            Gay2()
+        elseif aamode1:GetValue() == 1 then
     gui.SetValue( "rbot_antiaim_stand_desync", 2 )
     gui.SetValue( "rbot_antiaim_move_desync", 3 )
     Gay2()
-    elseif aamode1:GetValue() == 1 then
+    elseif aamode1:GetValue() == 2 then
         gui.SetValue( "rbot_antiaim_stand_desync", 1 )
     gui.SetValue( "rbot_antiaim_move_desync", 3 )
     Gay2()
-    elseif aamode1:GetValue() == 2 then
+    elseif aamode1:GetValue() == 3 then
     gui.SetValue( "rbot_antiaim_stand_desync", 1 )
     gui.SetValue( "rbot_antiaim_move_desync", 3 )
     Gay2()
@@ -704,18 +737,31 @@ end
 
 
 function Gay2()
-
+    if randomspeed:GetValue() then
+        
+        aaspeed:SetValue(math.floor(math.sin((globals.RealTime() / 10) * 35) * 8) / 3)
+        else
+        end
+    oldyaw1 = 0
+    oldyaw2 = 0
+    oldyaw1 = gui.GetValue("rbot_antiaim_stand_desync")
+    oldyaw2 = gui.GetValue("rbot_antiaim_move_desync")
  
     timer.Create("Gay2", aaspeed:GetValue(), aaspeed:GetValue(), function()
+        
         if aamode1:GetValue() == 0 then
+            gui.SetValue( "rbot_antiaim_stand_desync", oldyaw1  )
+            gui.SetValue( "rbot_antiaim_move_desync", oldyaw2 )
+            Gay1()
+        elseif aamode1:GetValue() == 1 then
         gui.SetValue( "rbot_antiaim_stand_desync", 3  )
 gui.SetValue( "rbot_antiaim_move_desync", 2 )
         Gay1()
-        elseif aamode1:GetValue() == 1 then
+        elseif aamode1:GetValue() == 2 then
             gui.SetValue( "rbot_antiaim_stand_desync", 4 )
     gui.SetValue( "rbot_antiaim_move_desync", 4 )
             Gay1()
-        elseif aamode1:GetValue() == 2 then
+        elseif aamode1:GetValue() == 3 then
             gui.SetValue( "rbot_antiaim_stand_desync", 3 )
     gui.SetValue( "rbot_antiaim_move_desync", 2 )
             Gay1()
@@ -1004,12 +1050,12 @@ local b_toggle = input.IsButtonDown
 local abs_frame_time = globals.AbsoluteFrameTime;
 local draw_Line, draw_TextShadow, draw_Color, draw_Text, draw_FilledRect, client_WorldToScreen, draw_GetScreenSize, client_GetConVar, client_SetConVar, client_exec, PlayerNameByUserID, PlayerIndexByUserID, GetLocalPlayer, gui_SetValue, gui_GetValue, LocalPlayerIndex, c_AllowListener, cb_Register, g_tickcount, g_realtime, g_curtime, math_floor, math_sqrt, GetPlayerResources, entities_FindByClass, GetPlayerResources = draw.Line, draw.TextShadow, draw.Color, draw.Text, draw.FilledRect, client.WorldToScreen, draw.GetScreenSize, client.GetConVar, client.SetConVar, client.Command, client.GetPlayerNameByUserID, client.GetPlayerIndexByUserID, entities.GetLocalPlayer, gui.SetValue, gui.GetValue, client.GetLocalPlayerIndex, client.AllowListener, callbacks.Register, globals.TickCount, globals.RealTime, globals.CurTime, math.floor, math.sqrt, entities.GetPlayerResources, entities.FindByClass, entities.GetPlayerResources
 local local_ref = gui.Reference("VISUALS", "YOURSELF", "Filter", "Enable" );
-local boxcolor = gui.ColorEntry( "clr_box_esp", "Box Color", 255, 255, 255, 255 )
-local namecolor = gui.ColorEntry( "clr_name_esp", "Name Color", 255, 255, 255, 255 )
-local weaponcolor = gui.ColorEntry( "clr_weapon_esp", "Weapon Color", 255, 255, 255, 255 )
-local hitcolor = gui.ColorEntry( "clr_dmg_esp", "Damage Color", 255, 0, 0, 125 )
-local esp_font = draw.CreateFont("Visitor TT2 -BRK-", 11, 6)
-local flag_font = draw.CreateFont("Visitor TT2 -BRK-", 9, 4)
+local boxcolor = gui.ColorEntry( "clr_box_esp", "{Perspective}Box Color", 255, 255, 255, 255 )
+local namecolor = gui.ColorEntry( "clr_name_esp", "{Perspective}Name Color", 255, 255, 255, 255 )
+local weaponcolor = gui.ColorEntry( "clr_weapon_esp", "{Perspective}Weapon Color", 255, 255, 255, 255 )
+local hitcolor = gui.ColorEntry( "clr_dmg_esp", "{Perspective}Damage Color", 255, 0, 0, 125 )
+local esp_font = draw.CreateFont("Visitor TT2 -BRK-", 10, 0)
+local flag_font = draw.CreateFont("Visitor TT2 -BRK-", 10, 10)
 --local headshot_font = draw.CreateFont("Visitor TT2 -BRK-", 16, 100)
 local hit_font = draw.CreateFont("Visitor TT2 -BRK-", 16, 100)
 
@@ -1182,7 +1228,7 @@ local function KuSloEb_DrAwInG(e)
                         	{bbox.left - 4, bbox.bottom - healthbar_height - 6},
                         	true,
                         	true,
-                        	flags_font,
+                        	flag_font,
                         	{255, 255, 255, 200})
                 	end
 					end
@@ -1311,10 +1357,10 @@ local function KuSloEb_GaMeEvEnT( event , e)
             	kill_logs[i] = kill_logs[i-1]
         	end
 
-        	local text = damageDone
+        	local text = "-" .. damageDone
 
         	if hitgroup == 1 then
-        		text = damageDone
+        		text = "-" .. damageDone
         	end
 
 
@@ -1331,7 +1377,6 @@ end
 c_reg( "Draw", KuSloEb_DrAwInG)
 c_reg( "FireGameEvent", KuSloEb_GaMeEvEnT)
 client.AllowListener("player_hurt")
-print("Visuals For KuCJIoTa1337 // by L3D451R7")
 --CODED BY L3D451R7 POSHEL NAHUI NN
 
 
@@ -1377,11 +1422,12 @@ function ifCrosshair()
 
 
 
-
+    local hitsound = gui.Checkbox( grp6, "hitsound", "Hit Sound", 1 )
 
 
 function Sounds( Event, Entity )
-    if hitmarker:GetValue() then
+if hitmarker:GetValue() then
+    gui.SetValue( "msc_hitmarker_enable", 0 )
 if ( Event:GetName() == 'player_hurt' ) then
 
     local HITGROUP = Event:GetInt("hitgroup");
@@ -1395,7 +1441,8 @@ if ( Event:GetName() == 'player_hurt' ) then
 
     local NAME_Attacker = client.GetPlayerNameByUserID( INT_ATTACKER );
     local INDEX_Attacker = client.GetPlayerIndexByUserID( INT_ATTACKER );
-
+    -----
+if hitsound:GetValue() then 
     if (INDEX_Attacker == ENTITY_LOCAL_PLAYER and HITGROUP == 1) then
         client.Command("play rust_hs.wav", true);
     end
@@ -1404,18 +1451,24 @@ if ( Event:GetName() == 'player_hurt' ) then
         client.Command("play buttons/arena_switch_press_02.wav", true);
     end
 
-end
 else
 
 end
+-----
+end
+else
+    
+end
 
 end
+
 
 
 
 local hmred = gui.Slider(grp6, "hmred", "Hitmarker red", 255, 0, 255 )
 local hmgreen = gui.Slider(grp6, "hmgreen", "Hitmarker green", 0, 0, 255 )
 local hmblue = gui.Slider(grp6, "hmblue", "Hitmarker blue", 0, 0, 255 )
+local fogtext = gui.Text(grp6, "-------------------Fog Utilities-----------------" )
 
 
 alpha = 0
@@ -1449,7 +1502,7 @@ draw.Line(screencenterX + 10, screencenterY + 10, screencenterX + 3, screencente
 draw.Line(screencenterX + 10, screencenterY - 10, screencenterX + 3, screencenterY - 3)
 
 if(alpha > 0) then
-    alpha = alpha - 1.5
+    alpha = alpha / 1.08
     end
 
 else
@@ -1473,3 +1526,449 @@ end
 callbacks.Register( "FireGameEvent", "enemyhitfunction", enemyhit)
 callbacks.Register( "Draw", "hittermark", hittermark)
 callbacks.Register( 'FireGameEvent', 'Hitsound', Sounds );
+
+
+
+
+
+---------------------------------
+--name: x88 lua te aut mit gondoltal :ddd
+--author: zero
+--romanok ellen kft copyright 2019
+---------------------------------
+
+
+
+
+
+
+
+
+
+local font = draw.CreateFont('Stratum2-Bold', 17);
+local frame_rate = 0.0
+local get_abs_fps = function()
+    frame_rate = 0.9 * frame_rate + (1.0 - 0.9) * globals.AbsoluteFrameTime()
+    return math.floor((1.0 / frame_rate) + 0.5)
+end
+
+
+local kills  = {}
+local deaths = {}
+
+
+local function KillDeathCount(event)
+
+	local local_player = client.GetLocalPlayerIndex( );
+	local INDEX_Attacker = client.GetPlayerIndexByUserID( event:GetInt( 'attacker' ) );
+	local INDEX_Victim = client.GetPlayerIndexByUserID( event:GetInt( 'userid' ) );
+
+	if (event:GetName( ) == "client_disconnect") or (event:GetName( ) == "begin_new_match") then
+		kills = {}
+		deaths = {}
+	end
+
+	if event:GetName( ) == "player_death" then
+		if INDEX_Attacker == local_player then
+			kills[#kills + 1] = {};
+		end
+		
+		if (INDEX_Victim == local_player) then
+			deaths[#deaths + 1] = {};
+		end
+
+	end
+end
+
+function RandomVariable(length)
+	local res = ""
+	for i = 1, length do
+		res = res .. string.char(math.random(97, 122))
+	end
+	return res
+end
+
+function paint_traverse()
+    local x, y = draw.GetScreenSize()
+    local centerX = x / 2
+    local centerx = y / 2
+
+    --the bar idk lol
+if entities.GetLocalPlayer() ~= nil then
+
+         PING = entities.GetPlayerResources():GetPropInt( "m_iPing", client.GetLocalPlayerIndex() );
+        ip = engine.GetServerIP();
+        if (engine.GetServerIP() ~= "loopback") then
+            ip = engine.GetServerIP()
+        else
+            ip = "Local Session"
+        end
+
+
+end
+    function DrawPingColor()
+        
+        if ( PING <= 50 ) then
+            draw.Color(0, 255, 0, 255); -- keto
+        elseif ( PING <= 70 ) then
+            draw.Color( 50, 255, 0, 255 );
+        elseif ( PING <= 90 ) then
+            draw.Color( 100, 255, 0, 255 );
+        elseif ( PING <= 120 ) then
+            draw.Color( 150, 255, 0, 255 );
+        elseif ( PING <= 150 ) then
+            draw.Color( 200, 255, 0, 255 );
+        elseif ( PING <= 170 ) then
+            draw.Color( 255, 255, 0, 255 ); -- haroomm
+        elseif ( PING <= 190 ) then
+            draw.Color( 255, 200, 0, 255 ); 
+        else
+            draw.Color( 255, 0, 0, 255 ); 
+        end
+end
+
+
+    function DrawFpsColor()
+
+    if ( get_abs_fps() <= 60 ) then
+        draw.Color(255, 0, 0, 255); -- piros xd
+    elseif ( get_abs_fps() <= 120 ) then
+        draw.Color( 50, 255, 0, 255 );
+    elseif ( get_abs_fps() >= 120 ) then
+        draw.Color( 0, 255, 0, 255 ); -- piros zold kek akor serintem ez zod lesy :)
+    end
+
+end
+
+
+
+local tp_dist = gui.GetValue("vis_thirdperson_dist")
+local fagnam = client.GetPlayerNameByIndex(client.GetLocalPlayerIndex())
+
+local anyd = math.random(10000)
+local chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' -- eleg jo paszta elso helyrol amit lattam pasta 8-) igaz hekermen
+local length = 9
+local randomString = ''
+
+math.randomseed(anyd)
+
+charTable = {}
+for c in chars:gmatch"." do
+    table.insert(charTable, c)
+end
+
+for i = 1, length do
+    randomString = randomString .. charTable[math.random(1, #charTable)]
+end
+
+
+    if entities.GetLocalPlayer() == nil and x88:GetValue() then
+        draw.SetFont(font);
+        draw.Color(255, 255, 0, 255)
+        draw.Text(x88posx:GetValue() - 550, y - 1040, "Hello zero :)")
+        draw.Text(x88posx:GetValue() - 550, y - 1020, "Hello " .. fagnam .. ":)")
+        draw.Text(x88posx:GetValue() - 470, y - 1040, "ANTI-UT:")
+        if gui.GetValue("msc_restrict") == 0 then
+            draw.Color(255, 0, 0, 255)
+            draw.Text(x88posx:GetValue() - 415, y - 1040, "OFF")
+            elseif gui.GetValue("msc_restrict") == 1 then
+                draw.Color(0, 0, 255, 255)
+            draw.Text(x88posx:GetValue() - 415, y - 1040, "SMAC")
+            else 
+                draw.Color(0, 255, 0, 255)
+            draw.Text(x88posx:GetValue() - 415, y - 1040, "ON")
+            end
+             draw.Color(255, 255, 255, 255)
+        elseif entities.GetLocalPlayer() ~= nil and x88:GetValue() then
+    draw.SetFont(font);
+    draw.Color(255, 255, 0, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 1040, "Hello zero :)")
+    draw.Text(x88posx:GetValue() - 460, y - 1020, "Server: " .. ip)
+    draw.Text(x88posx:GetValue() - 550, y - 1020, "Hello " .. fagnam .. " :)")
+    draw.Text(x88posx:GetValue() - 470, y - 1040, "ANTI-UT:")
+    if gui.GetValue("msc_restrict") == 0 then
+        draw.Color(255, 0, 0, 255)
+        draw.Text(x88posx:GetValue() - 415, y - 1040, "OFF")
+        elseif gui.GetValue("msc_restrict") == 1 then
+            draw.Color(0, 0, 255, 255)
+        draw.Text(x88posx:GetValue() - 415, y - 1040, "SMAC")
+        else 
+            draw.Color(0, 255, 0, 255)
+        draw.Text(x88posx:GetValue() - 415, y - 1040, "ON")
+        end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 1000, "Ragebot:")
+        if gui.GetValue("rbot_active") then
+            draw.Color( 255, 0, 0, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 1000,  "WARNING: ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 1000,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 980, "Resolver:")
+        if gui.GetValue("rbot_resolver") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 980,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 980,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 960, "Double Fire:")
+        if gui.GetValue("rbot_doublefire") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 960,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 960,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 940, "AntiAim:")
+        if gui.GetValue("rbot_antiaim_enable") then
+            draw.Color( 255, 0, 0, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 940,  "WARNING: ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 940,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 920, "AA Mode:")
+        if gui.GetValue("rbot_antiaim_enable") then
+            draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 920,  "Normal" ); 
+        elseif gui.GetValue("lbot_antiaim") > 0 then
+            draw.Text(x88posx:GetValue() - 460, y - 920,  "Legit-trolling" ); 
+        else 
+            draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 920,  "OFF" );
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 900, "EnemyESP:")
+        if gui.GetValue("esp_filter_enemy") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 900,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 900,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 880, "NameESP:")
+        if gui.GetValue("esp_enemy_name") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 880,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 880,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 860, "Chams:")
+        if gui.GetValue("esp_enemy_chams") == 0 then
+            draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "OFF" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 1 then
+        draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "CLR" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 2 then
+            draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "MAT" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 3 then
+            draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "CLR WRF" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 4 then
+            draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "MAT WRF" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 5 then
+            draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "INVIS" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 6 then
+            draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "METAL" ); 
+        elseif gui.GetValue("esp_enemy_chams") == 7 then
+            draw.Color( 0, 0, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 860,  "FLAT" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 840, "WeaponESP:")
+        if gui.GetValue("esp_filter_weapon") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 840,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 840,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 820, "SpectatorList:")
+        if gui.GetValue("msc_showspec") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 820,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 820,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 800, "Radar:")
+        if gui.GetValue("esp_radar") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 800,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 800,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 550, y - 780, "NoSky:")
+        if gui.GetValue("vis_nosky") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 780,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 460, y - 780,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 1000, "Auto-Accept:")
+        if gui.GetValue("msc_autoaccept") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 1000,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 1000,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 980, "AutoStrafer:")
+    draw.Color(150, 201, 140, 255)
+        if gui.GetValue("msc_autostrafer_mode") == 1 then
+                draw.Color( 0, 0, 255, 255 );
+                draw.Text(x88posx:GetValue() - 370, y - 940,  "SILENT" ); 
+            elseif gui.GetValue("msc_autostrafer_mode") == 2 then
+                draw.Color( 0, 0, 255, 255 );
+                draw.Text(x88posx:GetValue() - 370, y - 940,  "NORMAL" ); 
+            elseif gui.GetValue("msc_autostrafer_mode") == 3 then
+                draw.Color( 0, 0, 255, 255 );
+                draw.Text(x88posx:GetValue() - 370, y - 940,  "SIDE" ); 
+            elseif gui.GetValue("msc_autostrafer_mode") == 4 then
+                draw.Color( 0, 0, 255, 255 );
+                draw.Text(x88posx:GetValue() - 370, y - 940,  "W-ONLY" ); 
+            elseif gui.GetValue("msc_autostrafer_mode") == 5 then
+                draw.Color( 0, 0, 255, 255 );
+                draw.Text(x88posx:GetValue() - 370, y - 940,  "MOUSE" ); 
+        end
+        draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 960, "Ranks:")
+        if gui.GetValue("msc_revealranks") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 960,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 960,  "OFF" ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 920, "TP dist:")
+        if gui.GetValue("vis_thirdperson_dist") then
+            draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 920,  tp_dist ); 
+    end
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 940, "Preserve:")
+        if gui.GetValue("vis_preservekillfeed") then
+            draw.Color( 137, 207, 240, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 940,  "ON" ); 
+        else
+        draw.Color( 255, 255, 255, 255 );
+            draw.Text(x88posx:GetValue() - 280, y - 940,  "OFF" ); 
+    end
+    -- jobb also resz
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 880, "FPS:")
+    draw.Color(DrawFpsColor())
+    draw.Text(x88posx:GetValue() - 280, y - 880, get_abs_fps() )
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 860, "Ping:")
+    draw.Color(DrawPingColor())
+    draw.Text(x88posx:GetValue() - 280, y - 860, PING)
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 840, "Kills:")
+    draw.Text(x88posx:GetValue() - 280, y - 840, #kills)
+    draw.Text(x88posx:GetValue() - 370, y - 820, "Deaths:")
+    draw.Text(x88posx:GetValue() - 280, y - 820, #deaths)
+    draw.Color(255, 255, 255, 255)
+    draw.Text(x88posx:GetValue() - 370, y - 800, "KD:")
+    draw.Color(255, 255, 255, 255)
+    if (#kills == 0 and #deaths == 0) then
+    draw.Text(x88posx:GetValue() - 280, y - 800, string.format("%.2f", 0) ); 
+    elseif (#kills >= 1 and #deaths == 0) then
+            draw.Text(x88posx:GetValue() - 280, y - 800, string.format("%.2f", #kills) ); 
+        else
+            draw.Text(x88posx:GetValue() - 280, y - 800, string.format("%.2f",  #kills  / #deaths  ) )
+    end
+    draw.Color(255, 255, 255, 255)
+    
+    --jobb also resz vege
+    --idk valami copyright akar leni ami viziblé
+    draw.Color(255, 0, 255, 255)
+    draw.Text(15, y - 1010, "Author: zero. :)")
+    draw.Color(137, 207, 240, 255)
+    --vége a idk-s copyrightnak
+end
+end
+
+
+
+
+
+client.AllowListener( "player_death" );
+client.AllowListener( "client_disconnect" );
+client.AllowListener( "begin_new_match" );
+callbacks.Register( "FireGameEvent", "KillDeathCount", KillDeathCount);
+callbacks.Register("Draw", "paint_traverse", paint_traverse);
+
+
+
+
+--impacts
+local string_format, vector_Distance, draw_RoundedRect = string.format, vector.Distance, draw.RoundedRect
+local is_enemy = function(index) if entities_GetByIndex(index) == nil then return end return entities_GetByIndex(index):GetTeamNumber() ~= GetLocalPlayer():GetTeamNumber() end
+local distance3D = function(a, b) distance = vector_Distance(a, b) return {['normal']=distance, ['u']=string_format('%.0fu', distance), ['ft']=string_format('%.0fft', distance*0.083333), ['m']=string_format('%.1fm', distance/39.370)} end
+local bulletimpacts = {}
+function bulletimpact(e)
+if e:GetName() ~= "bullet_impact" or (not BulletImpacts_Local:GetValue() and not BulletImpacts_Enemy:GetValue() and not BulletImpacts_Team:GetValue()) then return end local x = e:GetFloat("x") local y = e:GetFloat("y") local z = e:GetFloat("z") local player_index = PlayerIndexByUserID(e:GetInt("userid")) local n_bulletimpacts = #bulletimpacts
+if BulletImpacts_Local:GetValue() then if player_index == LocalPlayerIndex() then bulletimpacts[n_bulletimpacts + 1] = {g_curtime(), x, y, z, BulletImpacts_color_Local:GetValue()} end end
+if BulletImpacts_Enemy:GetValue() then if is_enemy(player_index) then bulletimpacts[n_bulletimpacts + 1] = {g_curtime(), x, y, z, BulletImpacts_color_Enemy:GetValue()} end end
+if BulletImpacts_Team:GetValue() then if not is_enemy(player_index) and player_index ~= LocalPlayerIndex() then bulletimpacts[n_bulletimpacts + 1] = {g_curtime(), x, y, z, BulletImpacts_color_Team:GetValue()} end end end
+function showimpacts() if GetLocalPlayer() == nil or (not BulletImpacts_Local:GetValue() and not BulletImpacts_Enemy:GetValue() and not BulletImpacts_Team:GetValue()) then return end for k, v in pairs(bulletimpacts) do if g_curtime() - v[1] > BulletImpacts_Time:GetValue() or distance3D({GetLocalPlayer():GetAbsOrigin()}, {v[2], v[3], v[4]}).normal >= 2000 then bulletimpacts[k] = nil else local X, Y = client_WorldToScreen(v[2], v[3], v[4]) if X ~= nil and Y ~= nil then draw_Color(v[5], v[6], v[7], v[8]) draw_RoundedRect(X-3, Y-3, X+3, Y+3) end end end end
+cb_Register("Draw", showimpacts) cb_Register("FireGameEvent", bulletimpact)
+
+
+
+
+
+----------------------------
+local bloom = gui.Slider(grp6, "Bloom", "Bloom", 20, 1, 100);
+local bloom_value = gui.Slider(grp6, "Value", "Value", 1, 1, 100);
+local fogstart = gui.Slider(grp6, "Fogstart", "FogStart", 100, 1, 1000);
+local fogend = gui.Slider(grp6, "FogEnd", "FogEnd", 1000, 1, 1000);
+local maxdensity = gui.Slider(grp6, "MaxDensity", "MaxDensity", 1, 1, 100);
+local ZoomScale = gui.Slider(grp6, "ZoomScale", "ZoomScale", 1, 1, 100);
+
+callbacks.Register("Draw", "bloom", function()
+        local CEnvTonemapController = entities.FindByClass("CEnvTonemapController")[1];
+        local CFogController = entities.FindByClass("CFogController")[1];
+
+        if(CFogController) then
+            CFogController:SetProp("m_fog.enable", 1);
+            CFogController:SetProp("m_fog.start", fogstart:GetValue()/1);
+            CFogController:SetProp("m_fog.end", fogend:GetValue()/1);
+            CFogController:SetProp("m_fog.maxdensity", maxdensity:GetValue()/100);
+            CFogController:SetProp("m_fog.ZoomFogScale", ZoomScale:GetValue()/100);
+        end
+        if(CEnvTonemapController) then
+
+            CEnvTonemapController:SetProp("m_flCustomBloomScale", bloom:GetValue()/50);
+            client.SetConVar("r_modelAmbientMin", bloom_value:GetValue()/1, true);
+            client.SetConVar("fog_override", 1, true);
+            client.SetConVar("fog_enableskybox", 1, true);
+            client.SetConVar("fog_startskybox", fogstart:GetValue()/1, true);
+            client.SetConVar("fog_endskybox", fogend:GetValue()/1, true);
+            client.SetConVar("fog_maxdensityskybox", maxdensity:GetValue()/100, true );
+        end
+   
+end);
