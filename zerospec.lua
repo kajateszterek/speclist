@@ -3,6 +3,7 @@ local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; 
 local VERSION_NUMBER = "3.0"; --- This too
+local frissitve = "10.12.2019"
 local divider = " | "
 
 local version_check_done = false;
@@ -27,7 +28,7 @@ local grpinfo = gui.Groupbox( window, "Client Info", 10, 470, 480, 50)
 local updateinfo = gui.Text(grpinfo, "Perspective is up to date!")
 --------------------------------------
 local grpinfo2 = gui.Groupbox( window, "Version Info", 500, 470, 480, 50)
-local build_date = gui.Text(grpinfo2, "Version: " .. VERSION_NUMBER .. divider .. "Build Date: " .. datumakurvaanyad )
+local build_date = gui.Text(grpinfo2, "Version: " .. VERSION_NUMBER .. divider .. "Build Date: " .. frissitve )
 -------------------------------------
 --local ittleszxd = gui.Reference("SETTINGS", "Miscellaneous")
 --group1
