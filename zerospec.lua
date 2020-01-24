@@ -3,7 +3,6 @@ local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/zerospec.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/kajateszterek/speclist/master/version.txt"; 
 local VERSION_NUMBER = "3.0"; --- This too
-local datumakurvaanyad = "10. 12. 2019."
 local divider = " | "
 
 local version_check_done = false;
